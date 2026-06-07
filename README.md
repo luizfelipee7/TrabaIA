@@ -18,7 +18,7 @@ O projeto combina um banco SQLite de estoque simulado com uma camada local e con
 No PowerShell, entre na pasta do projeto:
 
 ```powershell
-cd C:\Users\tzdie\Documents\Codex\Banco_Simulado
+cd Banco_Simulado
 ```
 
 Crie e ative um ambiente virtual:

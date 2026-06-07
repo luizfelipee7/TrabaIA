@@ -1,0 +1,20 @@
+# Ambiente Virtual do Python
+.venv/
+venv/
+ENV/
+env/
+
+# Caches e arquivos temporários do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Banco de Dados Local (gerado dinamicamente via seed)
+clinic_inventory.db
+
+# Arquivos de log e relatórios dinâmicos locais (evita expor caminhos absolutos)
+logs/
+reports/
+qa_runs/
