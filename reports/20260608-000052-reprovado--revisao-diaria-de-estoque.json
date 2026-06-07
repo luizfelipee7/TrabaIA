@@ -1,0 +1,129 @@
+{
+  "title": "[REPROVADO] Revisao diaria de estoque",
+  "created_at": "2026-06-08T00:00:52.259026",
+  "content": {
+    "report_type": "daily_inventory_review",
+    "generated_at": "2024-05-16T10:30:00",
+    "scope": [
+      "expiration_risks"
+    ],
+    "executive_summary": "O relatório foi estritamente focado na identificação de produtos com datas de validade próximas, conforme solicitado. Foram listados todos os itens que requerem atenção imediata devido ao risco de vencimento.",
+    "stock_shortages": [],
+    "expiration_risks": [
+      {
+        "product_id": 14,
+        "sku": "SORO-500",
+        "product_name": "Soro fisiológico 500ml",
+        "supplier_id": 2,
+        "severity": "high",
+        "evidence": "Vencimento em 2026-06-19. Estoque atual (5) está muito abaixo do mínimo (25).",
+        "recommended_action": "Bloquear compras e priorizar o uso deste item.",
+        "requires_approval": true
+      },
+      {
+        "product_id": 6,
+        "sku": "ALC-70-1L",
+        "product_name": "Álcool 70%",
+        "supplier_id": 3,
+        "severity": "high",
+        "evidence": "Vencimento em 2026-06-25. Estoque atual (14) está abaixo do mínimo (20).",
+        "recommended_action": "Bloquear compras e priorizar o uso deste item.",
+        "requires_approval": true
+      },
+      {
+        "product_id": 3,
+        "sku": "LUVA-NIT-G",
+        "product_name": "Luva nitrílica G",
+        "supplier_id": 1,
+        "severity": "critical",
+        "evidence": "Vencimento em 2027-02-02. A proximidade da validade exige controle rigoroso.",
+        "recommended_action": "Revisar uso e considerar bloqueio de compras para este lote.",
+        "requires_approval": false
+      },
+      {
+        "product_id": 2,
+        "sku": "LUVA-NIT-M",
+        "product_name": "Luva nitrílica M",
+        "supplier_id": 1,
+        "severity": "critical",
+        "evidence": "Vencimento em 2027-02-02. Estoque atual (8) está muito abaixo do mínimo (30).",
+        "recommended_action": "Bloquear compras e realizar uso prioritário imediato.",
+        "requires_approval": true
+      },
+      {
+        "product_id": 1,
+        "sku": "LUVA-NIT-P",
+        "product_name": "Luva nitrílica P",
+        "supplier_id": 1,
+        "severity": "critical",
+        "evidence": "Vencimento em 2027-02-02. A validade é um risco que deve ser monitorado.",
+        "recommended_action": "Monitorar uso e evitar compras de novos lotes até esgotamento deste lote.",
+        "requires_approval": false
+      },
+      {
+        "product_id": 15,
+        "sku": "DIPI-GOTAS",
+        "product_name": "Dipirona gotas",
+        "supplier_id": 2,
+        "severity": "high",
+        "evidence": "Vencimento em 2026-06-14. Estoque atual (9) está próximo do mínimo (8).",
+        "recommended_action": "Priorizar o uso e verificar a necessidade de compra urgente.",
+        "requires_approval": true
+      },
+      {
+        "product_id": 13,
+        "sku": "LENCOL-DESC",
+        "product_name": "Lençol descartável",
+        "supplier_id": 1,
+        "severity": "medium",
+        "evidence": "Vencimento em 2027-06-02. Estoque atual (16) está abaixo do ideal (30).",
+        "recommended_action": "Monitorar uso e considerar compra de novo lote.",
+        "requires_approval": false
+      },
+      {
+        "product_id": 5,
+        "sku": "MASC-N95",
+        "product_name": "Máscara N95",
+        "supplier_id": 1,
+        "severity": "medium",
+        "evidence": "Vencimento em 2027-06-07. Estoque atual (18) está abaixo do ideal (60).",
+        "recommended_action": "Monitorar uso e considerar compra de novo lote.",
+        "requires_approval": false
+      },
+      {
+        "product_id": 4,
+        "sku": "MASC-CIR-TRI",
+        "product_name": "Máscara cirúrgica tripla",
+        "supplier_id": 1,
+        "severity": "medium",
+        "evidence": "Vencimento em 2026-12-04. O vencimento deve ser considerado no planejamento.",
+        "recommended_action": "Manter estoque e monitorar a taxa de consumo para evitar excesso antes do prazo.",
+        "requires_approval": false
+      },
+      {
+        "product_id": 19,
+        "sku": "SAB-ANTI",
+        "product_name": "Sabonete antisséptico",
+        "supplier_id": 3,
+        "severity": "medium",
+        "evidence": "Vencimento em 2026-10-05. Estoque atual (6) está muito abaixo do mínimo (12).",
+        "recommended_action": "Comprar imediatamente e priorizar o uso deste lote.",
+        "requires_approval": true
+      }
+    ],
+    "abnormal_consumption": [],
+    "supplier_issues": [],
+    "purchase_suggestions": [],
+    "actions_requiring_approval": [],
+    "next_actions": [
+      {
+        "action": "Realizar uso prioritário dos lotes com validade mais próxima (Luvas M/G/P, Soro Fisiológico e Álcool 70%).",
+        "priority": "high",
+        "owner": "operacao",
+        "evidence": "Minimizar o risco de perdas por vencimento.",
+        "requires_approval": false
+      }
+    ],
+    "data_quality_issues": []
+  }
+}

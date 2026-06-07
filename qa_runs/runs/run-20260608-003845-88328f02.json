@@ -1,0 +1,181 @@
+{
+  "status": "aborted",
+  "message": "Relatorio final reprovado pela validacao por IA apos uma correcao.",
+  "scope_validation": {
+    "passed": false,
+    "reason": "O relatório inclui diversas seções que não foram solicitadas no pedido original (como stock_shortages, abnormal_consumption, supplier_issues, etc.), violando a instrução de conter apenas os produtos próximos do vencimento e ignorar os demais itens.",
+    "violations": [
+      "Inclusão de campos não solicitados (stock_shortages, abnormal_consumption, supplier_issues, purchase_suggestions, actions_requiring_approval, next_actions, data_quality_issues)",
+      "Não respeitou a restrição de conter apenas os produtos próximos do vencimento"
+    ],
+    "correction_instruction": "Remova todos os campos que não sejam referentes aos riscos de expiração, mantendo apenas as informações sobre produtos com validade próxima."
+  },
+  "report": {
+    "saved": true,
+    "path": "C:\\Users\\tzdie\\Documents\\Codex\\Banco_Simulado\\reports\\20260608-003845-reprovado--revisao-diaria-de-estoque.json",
+    "title": "[REPROVADO] Revisao diaria de estoque"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "action_type": "tool_call",
+      "tool_call_id": "jCxcojLLXoS9L9IngN8t3Xn7wahcNnrl",
+      "tool_name": "list_products_tool",
+      "tool_args": {},
+      "tool_result": {
+        "truncated": true,
+        "preview": "{\"ok\": true, \"tool_name\": \"list_products_tool\", \"result\": {\"count\": 25, \"products\": [{\"id\": 21, \"sku\": \"ABAIX-LING\", \"name\": \"Abaixador de língua\", \"category\": \"descartáveis\", \"current_stock\": 45, \"minimum_stock\": 20, \"ideal_stock\": 60, \"criticality\": \"low\", \"expiration_date\": \"2027-06-07\", \"supplier_id\": 1}, {\"id\": 20, \"sku\": \"ALG-ROLO\", \"name\": \"Algodão rolo\", \"category\": \"descartáveis\", \"current_stock\": 24, \"minimum_stock\": 15, \"ideal_stock\": 45, \"criticality\": \"medium\", \"expiration_date\": \"2027-06-07\", \"supplier_id\": 1}, {\"id\": 16, \"sku\": \"ATAD-CREPE\", \"name\": \"Atadura crepe\", \"category\": \"descartáveis\", \"current_stock\": 64, \"minimum_stock\": 25, \"ideal_stock\": 90, \"criticality\": \"medium\", \"expiration_date\": \"2028-06-06\", \"supplier_id\": 1}, {\"id\": 24, \"sku\": \"CANETA-AZ\", \"name\": \"Caneta azul\", \"category\": \"escritório\", \"current_stock\": 18, \"minimum_stock\": 10, \"ideal_stock\": 30, \"criticality\": \"low\", \"expiration_date\": null, \"supplier_id\": 4}, {\"id\": 17, \"sku\": \"COLET-PERF\", \"name\": \"Coletor perfurocortante\", \"category\": \"descartáveis\", \"current_stock\": 3, \"minimum_stock\": 8, \"ideal_stock\": 20, \"criticality\": \"high\", \"expiration_date\": \"2028-05-27\", \"supplier_id\": 1}, {\"id\": 15, \"sku\": \"DIPI-GOTAS\", \"name\": \"Dipirona gotas\", \"category\": \"medicamentos\", \"current_stock\": 9, \"minimum_stock\": 8, \"ideal_stock\": 20, \"criticality\": \"medium\", \"expiration_date\": \"2026-06-14\", \"supplier_id\": 2}, {\"id\": 10, \"sku\": \"ESPAR-10\", \"name\": \"Esparadrapo\", \"category\": \"descartáveis\", \"current_stock\": 22, \"minimum_stock\": 12, \"ideal_stock\": 35, \"criticality\": \"low\", \"expiration_date\": \"2027-08-01\", \"supplier_id\": 1}, {\"id\": 25, \"sku\": \"ETIQ-ADES\", \"name\": \"Etiqueta adesiva\", \"category\": \"escritório\", \"current_stock\": 2, \"minimum_stock\": 5, \"ideal_stock\": 15, \"criticality\": \"low\", \"expiration_date\": null, \"supplier_id\": 4}, {\"id\": 9, \"sku\": \"GAZE-EST\", \"name\": \"Gaze estéril\", \"category\": \"descartáveis\", \"current_stock\": 70, \"minimum_stock\": 45, \"ideal_stock\": 140, \"criticality\": \"med"
+      }
+    },
+    {
+      "step": 2,
+      "action_type": "ai_report_validation",
+      "validation": {
+        "ok": true,
+        "validation": {
+          "passed": false,
+          "reason": "O relatório falhou em filtrar corretamente os produtos, incluindo itens com datas de vencimento muito distantes (entre 2026 e 2028), enquanto o pedido solicitava apenas produtos próximos do vencimento.",
+          "violations": [
+            "Inclusão de produtos com validade longa (2026-2028) em um relatório que deveria conter apenas itens próximos ao vencimento.",
+            "Não cumprimento da instrução de ignorar os outros itens que não atendem ao critério de proximidade."
+          ],
+          "correction_instruction": "Filtre a lista de produtos para incluir apenas aqueles com data de vencimento próxima à data atual do relatório (2024-05-22), removendo todos os itens que vencem apenas em 2026, 2027 ou 2028."
+        }
+      }
+    },
+    {
+      "step": 3,
+      "action_type": "ai_report_validation",
+      "validation": {
+        "ok": true,
+        "validation": {
+          "passed": false,
+          "reason": "O relatório inclui diversas seções que não foram solicitadas no pedido original (como stock_shortages, abnormal_consumption, supplier_issues, etc.), violando a instrução de conter apenas os produtos próximos do vencimento e ignorar os demais itens.",
+          "violations": [
+            "Inclusão de campos não solicitados (stock_shortages, abnormal_consumption, supplier_issues, purchase_suggestions, actions_requiring_approval, next_actions, data_quality_issues)",
+            "Não respeitou a restrição de conter apenas os produtos próximos do vencimento"
+          ],
+          "correction_instruction": "Remova todos os campos que não sejam referentes aos riscos de expiração, mantendo apenas as informações sobre produtos com validade próxima."
+        }
+      }
+    }
+  ],
+  "qa": {
+    "run_id": "run-20260608-003845-88328f02",
+    "batch_id": null,
+    "batch_index": null,
+    "model": "google/gemma-4-12b-qat",
+    "objective": "Analise a lista completa de produtos e crie um relatório contendo apenas os produtos que estão próximos da data de vencimento. Ignore os outros itens.",
+    "started_at": "2026-06-08T00:19:42.987114",
+    "finished_at": "2026-06-08T00:38:45.924350",
+    "duration_ms": 1142936,
+    "metrics": {
+      "status": "aborted",
+      "duration_ms": 1142936,
+      "model_call_count": 3,
+      "step_event_count": 3,
+      "timeline_event_count": 5,
+      "tool_call_count": 1,
+      "unique_tool_count": 1,
+      "tool_counts": {
+        "list_products_tool": 1
+      },
+      "failed_tool_count": 0,
+      "repeated_tool_call_count": 0,
+      "skill_event_count": 0,
+      "visible_model_message_count": 0,
+      "alert_count": 0,
+      "stock_shortage_count": 0,
+      "expiration_risk_count": 0,
+      "abnormal_consumption_count": 0,
+      "supplier_issue_count": 0,
+      "purchase_suggestion_count": 0,
+      "approval_action_count": 0,
+      "next_action_count": 0,
+      "data_quality_issue_count": 0,
+      "error_count": 1
+    },
+    "timeline": [
+      {
+        "type": "objective",
+        "label": "Objetivo",
+        "summary": "Analise a lista completa de produtos e crie um relatório contendo apenas os produtos que estão próximos da data de vencimento. Ignore os outros itens.",
+        "detail": {
+          "objective": "Analise a lista completa de produtos e crie um relatório contendo apenas os produtos que estão próximos da data de vencimento. Ignore os outros itens."
+        }
+      },
+      {
+        "type": "tool",
+        "label": "list_products_tool",
+        "summary": "list_products_tool({}) -> ok",
+        "step": 1,
+        "detail": {
+          "tool_call_id": "jCxcojLLXoS9L9IngN8t3Xn7wahcNnrl",
+          "tool_name": "list_products_tool",
+          "tool_args": {},
+          "tool_result": {
+            "truncated": true,
+            "preview": "{\"ok\": true, \"tool_name\": \"list_products_tool\", \"result\": {\"count\": 25, \"products\": [{\"id\": 21, \"sku\": \"ABAIX-LING\", \"name\": \"Abaixador de língua\", \"category\": \"descartáveis\", \"current_stock\": 45, \"minimum_stock\": 20, \"ideal_stock\": 60, \"criticality\": \"low\", \"expiration_date\": \"2027-06-07\", \"supplier_id\": 1}, {\"id\": 20, \"sku\": \"ALG-ROLO\", \"name\": \"Algodão rolo\", \"category\": \"descartáveis\", \"current_stock\": 24, \"minimum_stock\": 15, \"ideal_stock\": 45, \"criticality\": \"medium\", \"expiration_date\": \"2027-06-07\", \"supplier_id\": 1}, {\"id\": 16, \"sku\": \"ATAD-CREPE\", \"name\": \"Atadura crepe\", \"category\": \"descartáveis\", \"current_stock\": 64, \"minimum_stock\": 25, \"ideal_stock\": 90, \"criticality\": \"medium\", \"expiration_date\": \"2028-06-06\", \"supplier_id\": 1}, {\"id\": 24, \"sku\": \"CANETA-AZ\", \"name\": \"Caneta azul\", \"category\": \"escritório\", \"current_stock\": 18, \"minimum_stock\": 10, \"ideal_stock\": 30, \"criticality\": \"low\", \"expiration_date\": null, \"supplier_id\": 4}, {\"id\": 17, \"sku\": \"COLET-PERF\", \"name\": \"Coletor perfurocortante\", \"category\": \"descartáveis\", \"current_stock\": 3, \"minimum_stock\": 8, \"ideal_stock\": 20, \"criticality\": \"high\", \"expiration_date\": \"2028-05-27\", \"supplier_id\": 1}, {\"id\": 15, \"sku\": \"DIPI-GOTAS\", \"name\": \"Dipirona gotas\", \"category\": \"medicamentos\", \"current_stock\": 9, \"minimum_stock\": 8, \"ideal_stock\": 20, \"criticality\": \"medium\", \"expiration_date\": \"2026-06-14\", \"supplier_id\": 2}, {\"id\": 10, \"sku\": \"ESPAR-10\", \"name\": \"Esparadrapo\", \"category\": \"descartáveis\", \"current_stock\": 22, \"minimum_stock\": 12, \"ideal_stock\": 35, \"criticality\": \"low\", \"expiration_date\": \"2027-08-01\", \"supplier_id\": 1}, {\"id\": 25, \"sku\": \"ETIQ-ADES\", \"name\": \"Etiqueta adesiva\", \"category\": \"escritório\", \"current_stock\": 2, \"minimum_stock\": 5, \"ideal_stock\": 15, \"criticality\": \"low\", \"expiration_date\": null, \"supplier_id\": 4}, {\"id\": 9, \"sku\": \"GAZE-EST\", \"name\": \"Gaze estéril\", \"category\": \"descartáveis\", \"current_stock\": 70, \"minimum_stock\": 45, \"ideal_stock\": 140, \"criticality\": \"med"
+          }
+        },
+        "ok": true
+      },
+      {
+        "type": "system",
+        "label": "ai_report_validation",
+        "summary": "{\"step\": 2, \"action_type\": \"ai_report_validation\", \"validation\": {\"ok\": true, \"validation\": {\"passed\": false, \"reason\": \"O relatório falhou em filtrar corretamente os produtos, incluindo itens com datas de vencimento ...",
+        "step": 2,
+        "detail": {
+          "step": 2,
+          "action_type": "ai_report_validation",
+          "validation": {
+            "ok": true,
+            "validation": {
+              "passed": false,
+              "reason": "O relatório falhou em filtrar corretamente os produtos, incluindo itens com datas de vencimento muito distantes (entre 2026 e 2028), enquanto o pedido solicitava apenas produtos próximos do vencimento.",
+              "violations": [
+                "Inclusão de produtos com validade longa (2026-2028) em um relatório que deveria conter apenas itens próximos ao vencimento.",
+                "Não cumprimento da instrução de ignorar os outros itens que não atendem ao critério de proximidade."
+              ],
+              "correction_instruction": "Filtre a lista de produtos para incluir apenas aqueles com data de vencimento próxima à data atual do relatório (2024-05-22), removendo todos os itens que vencem apenas em 2026, 2027 ou 2028."
+            }
+          }
+        },
+        "ok": true
+      },
+      {
+        "type": "system",
+        "label": "ai_report_validation",
+        "summary": "{\"step\": 3, \"action_type\": \"ai_report_validation\", \"validation\": {\"ok\": true, \"validation\": {\"passed\": false, \"reason\": \"O relatório inclui diversas seções que não foram solicitadas no pedido original (como stock_shor...",
+        "step": 3,
+        "detail": {
+          "step": 3,
+          "action_type": "ai_report_validation",
+          "validation": {
+            "ok": true,
+            "validation": {
+              "passed": false,
+              "reason": "O relatório inclui diversas seções que não foram solicitadas no pedido original (como stock_shortages, abnormal_consumption, supplier_issues, etc.), violando a instrução de conter apenas os produtos próximos do vencimento e ignorar os demais itens.",
+              "violations": [
+                "Inclusão de campos não solicitados (stock_shortages, abnormal_consumption, supplier_issues, purchase_suggestions, actions_requiring_approval, next_actions, data_quality_issues)",
+                "Não respeitou a restrição de conter apenas os produtos próximos do vencimento"
+              ],
+              "correction_instruction": "Remova todos os campos que não sejam referentes aos riscos de expiração, mantendo apenas as informações sobre produtos com validade próxima."
+            }
+          }
+        },
+        "ok": true
+      },
+      {
+        "type": "skill",
+        "label": "Skills",
+        "summary": "Nenhuma skill externa foi chamada por esta execucao.",
+        "detail": {
+          "skill_event_count": 0
+        },
+        "ok": true
+      }
+    ],
+    "exported_at": "2026-06-08T00:38:45.945109"
+  }
+}

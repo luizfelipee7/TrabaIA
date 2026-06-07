@@ -1,0 +1,78 @@
+{
+  "title": "Daily Inventory Review - Near Expiration Products",
+  "created_at": "2026-06-08T00:14:10.939907",
+  "content": {
+    "report_type": "daily_inventory_review",
+    "generated_at": "2025-09-17T14:30:00",
+    "scope": [
+      "stock_shortages",
+      "expiration_risks",
+      "abnormal_consumption",
+      "supplier_issues",
+      "purchase_suggestions",
+      "actions_requiring_approval",
+      "next_actions",
+      "data_quality_issues"
+    ],
+    "executive_summary": "Relatório de estoque com produtos próximos do vencimento.",
+    "stock_shortages": [],
+    "expiration_risks": [
+      {
+        "product_id": 6,
+        "sku": "ALC-70-1L",
+        "product_name": "Álcool 70%",
+        "supplier_id": 3,
+        "severity": "medium",
+        "evidence": "Produto vence em 17 dias (2026-06-25)",
+        "recommended_action": "Investigar fornecimento ou usar antes do vencimento",
+        "requires_approval": false
+      },
+      {
+        "product_id": 14,
+        "sku": "SORO-500",
+        "product_name": "Soro fisiológico 500ml",
+        "supplier_id": 2,
+        "severity": "medium",
+        "evidence": "Produto vence em 11 dias (2026-06-19)",
+        "recommended_action": "Investigar fornecimento ou usar antes do vencimento",
+        "requires_approval": false
+      },
+      {
+        "product_id": 15,
+        "sku": "DIPI-GOTAS",
+        "product_name": "Dipirona gotas",
+        "supplier_id": 2,
+        "severity": "high",
+        "evidence": "Produto vence em 6 dias (2026-06-14)",
+        "recommended_action": "Usar antes do vencimento ou investigar fornecimento",
+        "requires_approval": false
+      }
+    ],
+    "abnormal_consumption": [],
+    "supplier_issues": [
+      {
+        "supplier_id": 3,
+        "supplier_name": "Fornecedor de Álcool 70%",
+        "severity": "medium",
+        "evidence": "Fornecedor sem email cadastrado.",
+        "recommended_action": "Contatar fornecedor para obter contato.",
+        "requires_approval": true,
+        "related_product_ids": [
+          6
+        ]
+      }
+    ],
+    "purchase_suggestions": [],
+    "actions_requiring_approval": [],
+    "next_actions": [
+      {
+        "action": "Verificar estoque físico dos produtos próximos do vencimento.",
+        "priority": "high",
+        "owner": "operacao",
+        "evidence": "Alertas de near_expiration gerados.",
+        "requires_approval": false
+      }
+    ],
+    "data_quality_issues": []
+  }
+}

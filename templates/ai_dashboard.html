@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agent Trace - IA de Estoque</title>
+    <link rel="stylesheet" href="/static/ai_dashboard.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Agent Trace - IA de Estoque</h1>
+        <p>LM Studio: <strong id="base-url">{{ base_url }}</strong> · Modelo: <strong id="selected-model">{{ selected_model }}</strong></p>
+      </div>
+      <div class="top-actions">
+        <a class="link-button" href="/docs">API docs</a>
+        <a class="link-button" id="export-run" href="#" aria-disabled="true">Export run</a>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Dashboard tabs">
+      <button class="tab active" data-tab="trace-tab" type="button">Trace em tempo real</button>
+      <button class="tab" data-tab="static-tab" type="button">Análise estática</button>
+      <button class="tab" data-tab="history-tab" type="button">Histórico QA</button>
+    </nav>
+
+    <main>
+      <section class="model-bar panel">
+        <div>
+          <h2>Modelos</h2>
+          <p class="muted">Selecione o modelo usado nas próximas execuções.</p>
+        </div>
+        <div id="model-status" class="status muted">Aguardando LM Studio.</div>
+        <label for="model-select">Modelo</label>
+        <select id="model-select"></select>
+        <label class="check">
+          <input id="attempt-load" type="checkbox">
+          Tentar carga nativa
+        </label>
+        <div class="button-row">
+          <button id="refresh-models" type="button">Atualizar modelos</button>
+          <button id="select-model" type="button">Usar modelo</button>
+        </div>
+      </section>
+
+      <section id="trace-tab" class="tab-panel active">
+        <section class="trace-controls panel">
+          <div>
+            <h2>Nova execução em streaming</h2>
+            <p class="muted">Mostra eventos observáveis: chamadas do modelo, tool calls, resultados, validação e relatório final.</p>
+          </div>
+          <label for="trace-objective">Objetivo</label>
+          <textarea id="trace-objective" rows="3" placeholder="Objetivo opcional para esta execução."></textarea>
+          <div class="button-row">
+            <button id="run-stream" type="button">Iniciar trace</button>
+            <button id="clear-streams" class="secondary" type="button">Limpar boxes</button>
+          </div>
+          <div id="stream-status" class="status muted">Pronto para acompanhar o agente em tempo real.</div>
+        </section>
+
+        <section id="stream-runs" class="stream-runs"></section>
+      </section>
+
+      <section id="static-tab" class="tab-panel">
+        <div class="qa-layout">
+          <aside class="sidebar">
+            <section class="panel">
+              <h2>Execução estática</h2>
+              <label for="objective">Objetivo</label>
+              <textarea id="objective" rows="5" placeholder="Objetivo opcional para o teste."></textarea>
+              <div class="button-row">
+                <button id="run-review" type="button">Rodar 1 teste</button>
+              </div>
+              <div id="run-status" class="status muted">Pronto.</div>
+            </section>
+
+            <section class="panel">
+              <h2>Batch</h2>
+              <label for="batch-count">Quantidade</label>
+              <input id="batch-count" type="number" min="1" max="50" value="5">
+              <button id="run-batch" type="button">Rodar batch</button>
+              <div id="batch-status" class="status muted">Sem batch em andamento.</div>
+            </section>
+          </aside>
+
+          <section class="main-workspace">
+            <section class="metrics-grid" id="metrics"></section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Raio X da execução</h2>
+                  <p id="run-meta" class="muted">Nenhuma execução carregada.</p>
+                </div>
+                <div class="filter-row">
+                  <button class="filter active" data-filter="all" type="button">Tudo</button>
+                  <button class="filter" data-filter="tool" type="button">Tools</button>
+                  <button class="filter" data-filter="response" type="button">Resposta</button>
+                  <button class="filter" data-filter="skill" type="button">Skills</button>
+                  <button class="filter" data-filter="system" type="button">Sistema</button>
+                </div>
+              </div>
+              <div id="timeline" class="timeline empty">Nenhuma execução nesta sessão.</div>
+            </section>
+
+            <section class="split">
+              <section class="panel">
+                <h2>Relatório final</h2>
+                <div id="report" class="empty">Nenhum relatório carregado.</div>
+              </section>
+
+              <section class="panel">
+                <h2>Alertas e riscos</h2>
+                <div id="alerts" class="empty">Nenhum alerta carregado.</div>
+              </section>
+            </section>
+          </section>
+        </div>
+      </section>
+
+      <section id="history-tab" class="tab-panel">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Comparação de testes</h2>
+            <button id="refresh-runs" type="button">Atualizar runs</button>
+          </div>
+          <div id="batch-summary" class="summary-line muted">Sem batch carregado.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Run</th>
+                  <th>Status</th>
+                  <th>Modelo</th>
+                  <th>Tempo</th>
+                  <th>Tools</th>
+                  <th>Falhas</th>
+                  <th>Faltas</th>
+                  <th>Export</th>
+                </tr>
+              </thead>
+              <tbody id="runs-table"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Logs recentes</h2>
+          <pre id="logs" class="log-box"></pre>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/ai_dashboard.js"></script>
+  </body>
+</html>

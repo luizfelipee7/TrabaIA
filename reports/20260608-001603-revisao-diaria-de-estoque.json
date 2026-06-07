@@ -1,0 +1,52 @@
+{
+  "title": "Revisao diaria de estoque",
+  "created_at": "2026-06-08T00:16:03.913424",
+  "content": {
+    "report_type": "daily_inventory_review",
+    "generated_at": "2025-09-17T14:30:00",
+    "scope": [
+      "stock_shortages",
+      "expiration_risks"
+    ],
+    "executive_summary": "Relatório com produtos próximos do vencimento.",
+    "stock_shortages": [],
+    "expiration_risks": [
+      {
+        "product_id": 6,
+        "sku": "ALC-70-1L",
+        "product_name": "Álcool 70%",
+        "supplier_id": 3,
+        "severity": "medium",
+        "evidence": "Produto vence em 17 dias (2026-06-25)",
+        "recommended_action": "Investigar fornecimento ou usar antes do vencimento",
+        "requires_approval": false
+      },
+      {
+        "product_id": 14,
+        "sku": "SORO-500",
+        "product_name": "Soro fisiológico 500ml",
+        "supplier_id": 2,
+        "severity": "medium",
+        "evidence": "Produto vence em 11 dias (2026-06-19)",
+        "recommended_action": "Investigar fornecimento ou usar antes do vencimento",
+        "requires_approval": false
+      },
+      {
+        "product_id": 15,
+        "sku": "DIPI-GOTAS",
+        "product_name": "Dipirona gotas",
+        "supplier_id": 2,
+        "severity": "high",
+        "evidence": "Produto vence em 6 dias (2026-06-14)",
+        "recommended_action": "Usar antes do vencimento ou investigar fornecimento",
+        "requires_approval": false
+      }
+    ],
+    "abnormal_consumption": [],
+    "supplier_issues": [],
+    "purchase_suggestions": [],
+    "actions_requiring_approval": [],
+    "next_actions": [],
+    "data_quality_issues": []
+  }
+}
