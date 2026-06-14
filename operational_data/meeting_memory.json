@@ -1,5 +1,243 @@
 [
   {
+    "id": "mem-20260614-054032-00265a12",
+    "meeting_id": "meeting-20260614-054032-d6be579e",
+    "created_at": "2026-06-14T05:40:32.993994",
+    "updated_at": "2026-06-14T05:40:32.993997",
+    "status": "active",
+    "title": "Alinhamento do Design e UX da Central de Comando Executivo",
+    "summary": "A reunião consolidou o design e a experiência do usuário (UX) para transformar o assistente executivo interno da diretoria, migrando-o de um painel genérico para uma 'Central de Comando Pessoal' elegante e funcional. Foram definidos os princípios visuais, a estrutura modular em três áreas principais e o escopo da próxima entrega: um protótipo navegável focado na validação visual e de experiência.",
+    "topics": [
+      "Design e Experiência do Usuário para Liderança (Diretoria)",
+      "Eliminação de Jargões Técnicos em Interfaces Executivas"
+    ],
+    "entities": [
+      "Central de Comando Pessoal",
+      "Estrutura Modular (Entrada de Demanda, Contexto Executivo, Resposta Inteligente)",
+      "Tom Visual Operacional/Institucional",
+      "Protótipo Navegável UX"
+    ],
+    "commitments": [],
+    "watch_items": [
+      "A validação da clareza textual e a consistência visual do protótipo são cruciais para garantir que o produto atenda ao perfil de uso executivo."
+    ]
+  },
+  {
+    "id": "mem-20260614-053521-ad48e044",
+    "meeting_id": "meeting-20260614-053521-bf1436fa",
+    "created_at": "2026-06-14T05:35:21.896432",
+    "updated_at": "2026-06-14T05:35:21.896435",
+    "status": "active",
+    "title": "Alinhamento do Design UX/UI - Central de Comando Executivo",
+    "summary": "A reunião consolidou o design e a experiência do usuário (UX) para transformar o assistente executivo interno da diretoria, migrando-o de um painel genérico para uma 'Central de Comando Pessoal' elegante e funcional. Foram definidos os princípios visuais, a estrutura modular em três áreas principais e o escopo da próxima entrega: um protótipo navegável focado na validação visual e de experiência.",
+    "topics": [
+      "UX/UI para Assistente Executivo",
+      "Linguagem Executiva e Institucional",
+      "Modularização de Dados Críticos (Contexto Executivo)"
+    ],
+    "entities": [
+      "Central de Comando Pessoal",
+      "Estrutura em 3 Áreas: Entrada de Demanda, Contexto Executivo, Resposta Inteligente",
+      "Tom Visual: Institucional e Operacional (Ferramenta de Comando Empresarial)",
+      "Prioridade da Entrega: Protótipo Navegável (Validação UX/UI)"
+    ],
+    "commitments": [],
+    "watch_items": [
+      "A clareza da linguagem na interface deve ser revisada por Carla para garantir que o usuário final não veja termos técnicos."
+    ]
+  },
+  {
+    "id": "mem-20260614-053025-97e4229e",
+    "meeting_id": "meeting-20260614-053025-04450bd4",
+    "created_at": "2026-06-14T05:30:25.374449",
+    "updated_at": "2026-06-14T05:30:25.374452",
+    "status": "active",
+    "title": "Alinhamento Estrutural e UX do Assistente Executivo (Central de Comando)",
+    "summary": "A reunião consolidou o design e a experiência do usuário (UX) para transformar o assistente executivo interno da diretoria, migrando-o de um painel genérico para uma 'Central de Comando Pessoal' elegante e funcional. Foram definidos os princípios visuais, a estrutura modular em três áreas principais e o escopo da próxima entrega: um protótipo navegável focado na validação visual e de experiência.",
+    "topics": [
+      "UX Design",
+      "Arquitetura da Informação",
+      "Linguagem Executiva",
+      "Protótipos Digitais"
+    ],
+    "entities": [
+      "Assistente Executivo: Central de Comando Pessoal (UX/Design)",
+      "Estrutura Modular: Entrada de Demanda, Contexto Executivo e Resposta Inteligente.",
+      "Tom Visual: Institucional e Operacional ('Ferramenta de Comando Empresarial').",
+      "Entrega Próxima: Protótipo Navegável (Validação UX/Visual)."
+    ],
+    "commitments": [
+      "Felipe: Revisão visual e componentes.",
+      "André: Adaptação HTML e protótipo navegável.",
+      "Carla: Validação de cenários e clareza textual."
+    ],
+    "watch_items": []
+  },
+  {
+    "id": "mem-20260614-052620-d1d7c683",
+    "meeting_id": "meeting-20260614-052620-c160a49d",
+    "created_at": "2026-06-14T05:26:20.843905",
+    "updated_at": "2026-06-14T05:26:20.843908",
+    "status": "active",
+    "title": "Alinhamento do Design e UX da Central de Comando Executivo",
+    "summary": "A reunião focou em refinar o design e a experiência do usuário (UX) para transformar o assistente executivo interno da diretoria, migrando-o de um painel genérico para uma 'Central de Comando Pessoal' elegante, funcional e com linguagem estritamente executiva. Foram definidos os princípios visuais, a estrutura modular em três áreas principais e o escopo da próxima entrega: um protótipo navegável focado na validação visual e de experiência.",
+    "topics": [
+      "UX/UI para Liderança",
+      "Design Corporativo Funcional",
+      "Validação de Protótipo Navegável"
+    ],
+    "entities": [
+      "Assistente Executivo Interno da Diretoria",
+      "Central de Comando Pessoal",
+      "Estrutura Trifásica (Entrada de Demanda, Contexto Executivo, Resposta Inteligente)",
+      "Tom Visual Institucional e Operacional ('Ferramenta de Comando Empresarial')"
+    ],
+    "commitments": [],
+    "watch_items": []
+  },
+  {
+    "id": "mem-20260614-052110-5b1a2483",
+    "meeting_id": "meeting-20260614-052110-aeaf5d0f",
+    "created_at": "2026-06-14T05:21:10.876798",
+    "updated_at": "2026-06-14T05:21:10.876801",
+    "status": "active",
+    "title": "Alinhamento do Design e UX para Central de Comando Executivo",
+    "summary": "A reunião focou em refinar o design e a experiência do usuário (UX) para transformar o assistente executivo interno da diretoria, migrando-o de um painel genérico para uma 'Central de Comando Pessoal' elegante, funcional e com linguagem estritamente executiva. Foram definidos os princípios visuais, a estrutura modular em três áreas principais e o escopo da próxima entrega: um protótipo navegável focado na validação visual e de experiência.",
+    "topics": [
+      "UX para Liderança Executiva",
+      "Design de Ferramentas Internas Corporativas",
+      "Hierarquia de Informação (Resumo > Pontos Importantes > Ações Recomendadas)"
+    ],
+    "entities": [
+      "Central de Comando Pessoal",
+      "Estrutura Trifásica (Entrada de Demanda, Contexto Executivo, Resposta Inteligente)",
+      "Tom Visual Operacional/Institucional",
+      "Protótipo Navegável em HTML Único"
+    ],
+    "commitments": [
+      "A próxima entrega será tratada como uma validação visual e de experiência (UX), não como uma implementação funcional completa."
+    ],
+    "watch_items": []
+  },
+  {
+    "id": "mem-20260614-051954-c4e1044b",
+    "meeting_id": "meeting-20260614-051954-56be36df",
+    "created_at": "2026-06-14T05:19:54.110306",
+    "updated_at": "2026-06-14T05:19:54.110309",
+    "status": "active",
+    "title": "Alinhamento do Design e UX da Central de Comando Executivo",
+    "summary": "A reunião consolidou o design e a experiência do usuário (UX) para transformar o assistente executivo interno da diretoria, migrando-o de um painel genérico para uma 'Central de Comando Pessoal' elegante e operacional. Foram definidos os princípios visuais, a estrutura modular em três áreas principais (Entrada de Demanda, Contexto Executivo e Resposta Inteligente) e o escopo da próxima entrega: um protótipo navegável focado na validação visual e de experiência.",
+    "topics": [
+      "UX/UI para Liderança Executiva",
+      "Protótipo Navegável (Simulação Visual)",
+      "decisions_made_for_memory_retrieval_keywords: [\"Central de Comando Pessoal\", \"Estrutura Trifásica\", \"Institucional e Operacional\"]"
+    ],
+    "entities": [
+      "Central de Comando Pessoal (Nome/Conceito)",
+      "Estrutura Trifásica: Entrada de Demanda, Contexto Executivo e Resposta Inteligente",
+      "Tom Visual: Institucional e Operacional ('Ferramenta de Comando Empresarial')"
+    ],
+    "commitments": [
+      "A próxima entrega será um protótipo navegável (simulação visual/UX), não uma implementação funcional completa. O foco é a validação da experiência e aparência do produto final."
+    ],
+    "watch_items": []
+  },
+  {
+    "id": "mem-20260614-051345-001c075c",
+    "meeting_id": "meeting-20260614-051345-7e7cf085",
+    "created_at": "2026-06-14T05:13:45.565886",
+    "updated_at": "2026-06-14T05:13:45.565889",
+    "status": "active",
+    "title": "Alinhamento Final do Design e UX - Central de Comando Executivo",
+    "summary": "A reunião consolidou o design e a experiência do usuário (UX) para transformar o assistente executivo interno da diretoria, migrando-o de um painel genérico para uma 'Central de Comando Pessoal' elegante e operacional. Foram definidos os princípios visuais, a estrutura modular em três áreas principais (Entrada de Demanda, Contexto Executivo e Resposta Inteligente) e o escopo da próxima entrega: um protótipo navegável focado na validação visual e de experiência.",
+    "topics": [
+      "UX para Liderança Executiva",
+      "Design de Ferramentas Corporativas (Anti-Startup Aesthetic)"
+    ],
+    "entities": [
+      "Central de Comando Pessoal",
+      "Estrutura Trifásica (Entrada de Demanda, Contexto Executivo, Resposta Inteligente)",
+      "Tom Visual Operacional/Institucional",
+      "Protótipo Navegável em HTML Único"
+    ],
+    "commitments": [
+      "Felipe revisará a consistência visual e componentes.",
+      "André entregará o protótipo navegável em HTML único com as telas simuladas.",
+      "Carla validará os cenários de uso executivo e textos."
+    ],
+    "watch_items": [
+      "Aderência ao tom 'ferramenta de comando empresarial' (não IA genérica).",
+      "Manutenção da clareza e foco do Contexto Executivo.",
+      "Entrega no prazo do protótipo navegável."
+    ]
+  },
+  {
+    "id": "mem-20260614-050712-f8437f2a",
+    "meeting_id": "meeting-20260614-050712-1002d977",
+    "created_at": "2026-06-14T05:07:12.536949",
+    "updated_at": "2026-06-14T05:07:12.536952",
+    "status": "active",
+    "title": "Alinhamento UX/UI - Central de Comando Executivo",
+    "summary": "Reunião focada em refinar o design e a experiência do assistente executivo interno para transformá-lo de um painel genérico em uma 'central de comando pessoal' elegante, funcional e com linguagem executiva. Foram definidos os princípios visuais, a estrutura modular da interface e os próximos passos para criar um protótipo navegável focado na validação de experiência.",
+    "topics": [
+      "Design Institucional e Operacional",
+      "Linguagem Executiva (Evitar termos técnicos de IA)",
+      "Fluxo de Informação Prioritário (Resumo > Pontos Importantes > Ações Recomendadas)"
+    ],
+    "entities": [
+      "Central de Comando Executivo",
+      "Protótipo Navegável (UX/UI)",
+      "Estrutura em 3 Áreas (Demanda, Contexto, Resposta)"
+    ],
+    "commitments": [
+      "Felipe revisará a consistência visual.",
+      "André preparará o protótipo navegável em HTML único.",
+      "Carla validará os cenários e textos executivos."
+    ],
+    "watch_items": []
+  },
+  {
+    "id": "mem-20260614-050122-ac08e32f",
+    "meeting_id": "meeting-20260614-050122-0de4669f",
+    "created_at": "2026-06-14T05:01:22.997723",
+    "updated_at": "2026-06-14T05:01:22.997726",
+    "status": "active",
+    "title": "Alinhamento UX/UI do Assistente Executivo (Central de Comando)",
+    "summary": "A reunião teve como objetivo alinhar a nova proposta de design e experiência de usuário (UX) para o assistente executivo interno da diretoria, migrando de um painel genérico para uma 'central de comando pessoal' elegante e funcional. Foram definidos os princípios visuais, a estrutura modular da interface e os próximos passos para criar um protótipo navegável focado na validação de experiência.",
+    "topics": [
+      "Refinamento UX para Liderança",
+      "Protótipo Navegável (Validação de Experiência)",
+      "Hierarquia da Resposta (Resumo > Pontos Importantes > Ações Recomendadas)"
+    ],
+    "entities": [
+      "Assistente Executivo Diretor: Central de Comando Pessoal (UX/UI)",
+      "Estrutura da Interface: Entrada de Demanda | Contexto Executivo | Resposta Inteligente",
+      "Princípio Visual: Institucional e Operacional (Evitar estética SaaS/IA genérica)"
+    ],
+    "commitments": [],
+    "watch_items": []
+  },
+  {
+    "id": "mem-20260614-024149-ef817e80",
+    "meeting_id": "meeting-20260614-024149-a788d8d4",
+    "created_at": "2026-06-14T02:41:49.578110",
+    "updated_at": "2026-06-14T02:41:49.578113",
+    "status": "active",
+    "title": "Alinhamento do Design e UX do Assistente Executivo",
+    "summary": "A reunião focou em refinar o design e a experiência de usuário (UX) para transformar o assistente executivo interno da diretoria de um painel genérico em uma 'central de comando pessoal' elegante, funcional e com linguagem executiva. Foram definidas as áreas estruturais, os princípios visuais e os próximos passos para criar um protótipo navegável focado na validação de experiência.",
+    "topics": [
+      "UX/UI para Liderança Empresarial",
+      "Design Institucional vs. Tecnologia Genérica"
+    ],
+    "entities": [
+      "Assistente Executivo Interno (Diretoria)",
+      "Central de Comando Pessoal",
+      "Estrutura em 3 Áreas: Entrada de Demanda, Contexto Executivo e Resposta Inteligente"
+    ],
+    "commitments": [],
+    "watch_items": []
+  },
+  {
     "id": "mem-20260614-020224-27a38f9c",
     "meeting_id": "meeting-20260614-020224-12c991c5",
     "created_at": "2026-06-14T02:02:24.861626",

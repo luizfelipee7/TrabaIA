@@ -5,6 +5,8 @@ const state = {
   speechBaseText: "",
   speechFinalText: "",
   recording: false,
+  requestHistory: [],
+  activeHistoryId: null,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -38,8 +40,25 @@ function bindActions() {
   $("#reload-documents")?.addEventListener("click", loadDocuments);
   $("#bill-file-selector")?.addEventListener("change", handleOcrUpload);
   $("#save-document")?.addEventListener("click", saveDocument);
+  $("#account-list")?.addEventListener("click", (event) => {
+    const deleteButton = event.target.closest("[data-delete-document]");
+    if (deleteButton) deleteDocument(deleteButton.dataset.deleteDocument);
+  });
   $("#summarize-meeting")?.addEventListener("click", summarizeMeeting);
   $("#meeting-file-selector")?.addEventListener("change", readMeetingFile);
+  $("#open-meeting-history")?.addEventListener("click", () => openMeetingModal("meeting-history-modal"));
+  $("#open-meeting-memory")?.addEventListener("click", () => openMeetingModal("meeting-memory-modal"));
+  $$("[data-close-modal]").forEach((button) => {
+    button.addEventListener("click", closeMeetingModals);
+  });
+  $$(".meeting-modal").forEach((modal) => {
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeMeetingModals();
+    });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMeetingModals();
+  });
   $("#send-request")?.addEventListener("click", sendAgentRequest);
   $("#btn-clear-painel")?.addEventListener("click", clearAssistantPanel);
   $("#mic-btn")?.addEventListener("click", toggleVoiceInput);
@@ -69,6 +88,22 @@ function bindActions() {
   $$("[data-tab-jump]").forEach((button) => {
     button.addEventListener("click", () => switchTab(button.dataset.tabJump));
   });
+}
+
+function openMeetingModal(modalId) {
+  closeMeetingModals();
+  const modal = $(`#${modalId}`);
+  if (!modal) return;
+  modal.hidden = false;
+  document.body.classList.add("modal-open");
+  modal.querySelector("[data-close-modal]")?.focus();
+}
+
+function closeMeetingModals() {
+  $$(".meeting-modal").forEach((modal) => {
+    modal.hidden = true;
+  });
+  document.body.classList.remove("modal-open");
 }
 
 function switchTab(tabName) {
@@ -104,19 +139,21 @@ function renderStatus(data) {
   const modelDot = $("#model-status-dot");
   const model = data.model || {};
   const roles = model.policy?.roles || {};
-  modelDot.classList.toggle("danger", !model.available);
-  $("#model-status-text").textContent = model.message || "Modelo sem status.";
-  $("#selected-model").textContent = roles.worker
-    ? `worker ${roles.worker.model} - quality ${roles.quality?.model || "-"} - balanced ${roles.balanced?.model || "-"}`
-    : model.selected_model || $("#selected-model").textContent;
-  $("#stt-status-text").textContent = `STT: ${(data.stt || {}).available ? "disponivel" : "indisponivel"}`;
-  $("#ocr-status-text").textContent = `OCR: ${(data.ocr || {}).available ? "disponivel" : "aguardando modelo"}`;
+  if (modelDot) modelDot.classList.toggle("danger", !model.available);
+  if ($("#model-status-text")) $("#model-status-text").textContent = model.message || "Modelo sem status.";
+  if ($("#selected-model")) {
+    $("#selected-model").textContent = roles.worker
+      ? `worker ${roles.worker.model} - quality ${roles.quality?.model || "-"} - balanced ${roles.balanced?.model || "-"}`
+      : model.selected_model || $("#selected-model").textContent;
+  }
+  if ($("#stt-status-text")) $("#stt-status-text").textContent = `STT: ${(data.stt || {}).available ? "disponivel" : "indisponivel"}`;
+  if ($("#ocr-status-text")) $("#ocr-status-text").textContent = `OCR: ${(data.ocr || {}).available ? "disponivel" : "aguardando modelo"}`;
   if ($("#runtime-status-text")) {
     const runtime = data.ai_runtime || model.runtime || null;
-    $("#runtime-status-text").textContent = runtime ? `Runtime: ocupado com ${runtime.kind}` : "Runtime: livre";
+    $("#runtime-status-text").textContent = runtime ? "Processando uma entrega" : "Pronto para consultas operacionais";
   }
   if (data.ai_runtime || model.runtime) {
-    $("#model-status-text").textContent = `IA ocupada: ${(data.ai_runtime || model.runtime).kind}`;
+    if ($("#model-status-text")) $("#model-status-text").textContent = `IA ocupada: ${(data.ai_runtime || model.runtime).kind}`;
   }
   const voiceMode = $("#voice-mode");
   if (voiceMode) {
@@ -156,20 +193,8 @@ function renderDashboard(data) {
     statusRow("STT", data.stt_status),
     statusRow("OCR", data.ocr_status),
   ];
-  $("#integration-status").innerHTML = statusRows.join("");
-  $("#integration-tag").textContent = data.model_status?.available ? "Online" : "Parcial";
-
-  $("#recent-runs").innerHTML = (data.runs || []).map((run) => row(
-    run.run_id || "Execucao",
-    `${run.status || "sem status"} - modelo ${run.model || "-"} - ${run.duration_ms || 0}ms`,
-    tag(run.status || "run", run.status === "completed" ? "green" : "gold"),
-  )).join("") || empty("Nenhuma execucao de QA encontrada.");
-
-  $("#recent-logs").innerHTML = (data.logs || []).map((log) => row(
-    log.message || "Log",
-    log.created_at || "",
-    tag("log", "purple"),
-  )).join("") || empty("Nenhum log registrado.");
+  if ($("#integration-status")) $("#integration-status").innerHTML = statusRows.join("");
+  if ($("#integration-tag")) $("#integration-tag").textContent = data.model_status?.available ? "Online" : "Parcial";
 
   setRight("dashboard", [
     card("Resumo operacional", `Produtos: ${metrics.products || 0}. Alertas: ${metrics.open_alerts || 0}. Relatorios: ${metrics.reports || 0}.`, true),
@@ -221,7 +246,9 @@ function renderSearch(data) {
 
 async function runReport(reportType, useAi) {
   const renderInAssistant = Boolean($("#page-assistente.active"));
+  const historyPrompt = useAi ? "Revisao diaria por IA" : `Rotina ${reportType}`;
   if (renderInAssistant) {
+    appendRequestHistory(historyPrompt, "enviado");
     setResultStage(renderNotice("Executando rotina", `${reportType}${useAi ? " com IA" : ""}.`, "loading"));
   }
   setRight("dashboard", card("Executando rotina", `${reportType}${useAi ? " com IA" : ""}.`, true));
@@ -232,11 +259,25 @@ async function runReport(reportType, useAi) {
     });
     const html = renderOperationalResult("Rotina finalizada", data);
     setRight("dashboard", html);
-    if (renderInAssistant) setResultStage(html);
+    if (renderInAssistant) {
+      setResultStage(html);
+      appendRequestHistory(historyPrompt, data.status || "concluido", {
+        __html: html,
+        title: "Rotina finalizada",
+        summary: data.message || data.result?.final_report?.executive_summary || data.result?.report?.executive_summary || "Entrega salva no historico.",
+      });
+    }
     loadDashboard();
   } catch (error) {
     setRight("dashboard", card("Falha na rotina", error.message, true));
-    if (renderInAssistant) setResultStage(renderNotice("Falha na rotina", error.message, "danger"));
+    if (renderInAssistant) {
+      setResultStage(renderNotice("Falha na rotina", error.message, "danger"));
+      appendRequestHistory(historyPrompt, "erro", {
+        __html: renderNotice("Falha na rotina", error.message, "danger"),
+        title: "Falha na rotina",
+        summary: error.message,
+      });
+    }
   }
 }
 
@@ -285,13 +326,18 @@ async function sendAgentRequest() {
       }
     }
     if (!finalData) throw new Error("Stream encerrado sem resultado final.");
-    appendRequestHistory(prompt, finalData.status || "concluido", finalData.metadata);
+    appendRequestHistory(prompt, finalData.status || "concluido", finalData);
     updateAgentStatus(finalData.status || "Pronto", finalData.status === "completed" ? "#1f9d67" : "#b7791f");
   } catch (error) {
     const fallback = renderNotice("Falha na entrega", error.message, "danger");
     if ($("#agent-live-result")) $("#agent-live-result").innerHTML = fallback;
     else setResultStage(fallback);
-    appendRequestHistory(prompt, "erro");
+    appendRequestHistory(prompt, "erro", {
+      status: "error",
+      title: "Falha na entrega",
+      summary: error.message,
+      visualization: {type: "answer", columns: [], rows: [], items: []},
+    });
     updateAgentStatus("Erro", "#ba2433");
   }
 }
@@ -354,10 +400,24 @@ async function loadDocuments() {
           <div class="doc-meta">${escapeHtml(doc.description || doc.category || "Documento salvo")} - Vence ${escapeHtml(doc.due_date || "-")}</div>
         </div>
         <div class="doc-amount">${escapeHtml(doc.amount || "-")}</div>
+        <button class="doc-delete-btn" data-delete-document="${escapeHtml(doc.id || "")}" title="Apagar documento salvo" type="button" aria-label="Apagar documento salvo">
+          <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
       </article>
     `).join("") || empty("Nenhuma conta salva.");
   } catch (error) {
     $("#account-list").innerHTML = empty(`Erro ao carregar contas: ${error.message}`);
+  }
+}
+
+async function deleteDocument(documentId) {
+  if (!documentId) return;
+  try {
+    await api(`/ops/ocr/documents/${encodeURIComponent(documentId)}`, {method: "DELETE"});
+    setRight("contas", card("Documento apagado", "O registro foi removido dos documentos salvos.", true));
+    loadDocuments();
+  } catch (error) {
+    setRight("contas", card("Falha ao apagar", error.message, true));
   }
 }
 
@@ -367,22 +427,49 @@ async function loadMeetings() {
     const meetings = data.meetings || [];
     const memory = data.memory || [];
     if ($("#meeting-history")) {
-      $("#meeting-history").innerHTML = meetings.map((meeting) => row(
-        meeting.title || "Reuniao",
-        `${meeting.status || "salva"} - ${meeting.created_at || ""}`,
-        tag((meeting.keywords || [])[0] || "reuniao", meeting.status === "completed" ? "green" : "gold"),
-      )).join("") || empty("Nenhuma reuniao salva.");
+      $("#meeting-history").innerHTML = meetings.map(renderMeetingHistoryItem).join("") || empty("Nenhuma reuniao salva.");
     }
     if ($("#meeting-memory")) {
-      $("#meeting-memory").innerHTML = memory.map((note) => row(
-        note.title || "Memoria",
-        `${note.summary || "Sem resumo"}${note.topics?.length ? ` - Topicos: ${note.topics.slice(0, 3).join(", ")}` : ""}`,
-        tag(note.status || "memoria", note.status === "active" ? "green" : "gold"),
-      )).join("") || empty("Nenhuma memoria escrita ainda.");
+      $("#meeting-memory").innerHTML = memory.map(renderMeetingMemoryItem).join("") || empty("Nenhuma memoria escrita ainda.");
     }
   } catch (error) {
     if ($("#meeting-history")) $("#meeting-history").innerHTML = empty(`Erro ao carregar reunioes: ${error.message}`);
   }
+}
+
+function renderMeetingHistoryItem(meeting) {
+  const keywords = (meeting.keywords || []).slice(0, 3);
+  const status = meeting.status || "salva";
+  return `
+    <article class="meeting-entry">
+      <div class="meeting-entry-main">
+        <b>${escapeHtml(meeting.title || "Reuniao operacional")}</b>
+        <p>${escapeHtml(meeting.summary || meeting.message || "Resumo salvo para consulta posterior.")}</p>
+        <span>${escapeHtml(formatDateTime(meeting.created_at))}</span>
+      </div>
+      <div class="meeting-tags">
+        ${tag(status, status === "completed" ? "green" : "gold")}
+        ${keywords.map((keyword) => tag(keyword, "purple")).join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderMeetingMemoryItem(note) {
+  const topics = (note.topics || []).slice(0, 4);
+  return `
+    <article class="meeting-entry memory">
+      <div class="meeting-entry-main">
+        <b>${escapeHtml(note.title || "Memoria operacional")}</b>
+        <p>${escapeHtml(note.summary || "Nota de contexto escrita pela IA.")}</p>
+        <span>${escapeHtml(formatDateTime(note.updated_at || note.created_at))}</span>
+      </div>
+      <div class="meeting-tags">
+        ${tag(note.status || "memoria", note.status === "active" ? "green" : "gold")}
+        ${topics.map((topic) => tag(topic, "purple")).join("")}
+      </div>
+    </article>
+  `;
 }
 
 async function summarizeMeeting() {
@@ -391,22 +478,38 @@ async function summarizeMeeting() {
     $("#meeting-results").innerHTML = empty("Cole uma transcricao ou selecione arquivo de texto.");
     return;
   }
-  $("#meeting-results").innerHTML = empty("Pipeline iniciada: preparando texto, buscando memoria e chamando IA.");
-  setRight("reunioes", renderMeetingPipeline({
-    pipeline_events: [
-      {type: "input", event: "raw_text_received", message: "Texto cru recebido."},
-      {type: "system", event: "text_preparation_pending", message: "Preparando texto para analise."},
-    ],
-  }));
+  $("#meeting-results").innerHTML = renderMeetingTopSummary({
+    title: "Analisando reuniao",
+    summary: "Aguardando a resposta final da IA para montar o resumo e o fluxograma.",
+    status: "processing",
+  });
+  setRight("reunioes", renderNotice("Analisando solicitacao", "O fluxograma sera gerado somente depois da resposta final da IA.", "loading"));
   try {
     const data = await api("/ops/meetings/summary", {method: "POST", body: JSON.stringify({text})});
-    $("#meeting-results").innerHTML = row("Resumo processado", data.message || data.status, tag(data.status, data.status === "completed" ? "green" : "gold"));
+    $("#meeting-results").innerHTML = renderMeetingTopSummary(data);
     setRight("reunioes", renderMeetingPipeline(data));
     loadMeetings();
   } catch (error) {
     $("#meeting-results").innerHTML = empty(`Erro: ${error.message}`);
     setRight("reunioes", renderNotice("Falha na reuniao", error.message, "danger"));
   }
+}
+
+function renderMeetingTopSummary(payload) {
+  const record = payload?.record || payload || {};
+  const status = payload?.status || record.status || "completed";
+  const title = record.title || payload?.title || "Resumo da reuniao";
+  const summary = record.summary || payload?.summary || payload?.message || "Resumo indisponivel.";
+  return `
+    <section class="meeting-summary-strip">
+      <div>
+        <span>${escapeHtml(status === "processing" ? "Em andamento" : "Resumo")}</span>
+        <b>${escapeHtml(title)}</b>
+        <p>${escapeHtml(summary)}</p>
+      </div>
+      ${tag(status === "completed" ? "concluido" : status, status === "completed" ? "green" : "gold")}
+    </section>
+  `;
 }
 
 function readMeetingFile(event) {
@@ -570,7 +673,6 @@ function setRight(tab, html) {
     dashboard: "#dashboard-output",
     banco: "#estoque-output",
     estoque: "#estoque-output",
-    contas: "#contas-output",
     reunioes: "#reunioes-output",
   };
   const selector = targetByTab[tab];
@@ -593,21 +695,14 @@ function startAgentRunView(prompt) {
   setResultStage(`
     <div class="run-monitor" id="agent-run-monitor">
       <section class="final-output waiting" id="agent-live-result">
-        <div>
-          <span class="result-source">Resposta final</span>
-          <p>Aguardando a IA concluir a entrega.</p>
+        <div class="processing-state">
+          <span class="spinner"></span>
+          <div>
+            <b>${escapeHtml(historyTitleFromPrompt(prompt))}</b>
+            <p>A IA esta consultando as ferramentas operacionais e preparando a entrega.</p>
+          </div>
         </div>
       </section>
-      <details class="monitor-details" id="agent-steps-details" open>
-        <summary>Etapas em tempo real</summary>
-        <div class="step-list" id="agent-stage-events">
-          <article class="step-event system"><strong>pedido</strong><p>${escapeHtml(prompt)}</p></article>
-        </div>
-      </details>
-      <details class="monitor-details" id="agent-raw-details" open>
-        <summary>Eventos tecnicos e JSON</summary>
-        <div class="raw-event-list" id="agent-trace-events"></div>
-      </details>
     </div>
   `);
 }
@@ -622,29 +717,13 @@ function clearAssistantPanel() {
     </div>
   `);
   const history = $("#request-history");
-  if (history) history.innerHTML = '<div class="history-empty">Nenhuma consulta ainda.<br>Selecione uma opcao acima.</div>';
+  state.requestHistory = [];
+  state.activeHistoryId = null;
+  if (history) renderRequestHistory();
   updateAgentStatus("Ocioso", "#16a34a");
 }
 
 function appendAgentTraceEvent(event) {
-  const stageList = $("#agent-stage-events");
-  if (stageList) {
-    const stageItem = document.createElement("article");
-    stageItem.className = `step-event ${event.type || "system"}`;
-    stageItem.innerHTML = `<strong>${escapeHtml(traceLabel(event.type || "system"))}</strong><p>${escapeHtml(event.message || event.event || event.tool_name || "")}</p>`;
-    stageList.appendChild(stageItem);
-    stageList.scrollTop = stageList.scrollHeight;
-  }
-
-  const list = $("#agent-trace-events");
-  if (!list) return;
-  const item = document.createElement("pre");
-  const type = event.type || "system";
-  item.className = `raw-event ${type}`;
-  const detail = {...event};
-  item.textContent = JSON.stringify(detail, null, 2);
-  list.appendChild(item);
-  list.scrollTop = list.scrollHeight;
   if (event.type === "tool") updateAgentStatus(`Tool: ${event.tool_name || "executando"}`, "#b7791f");
   if (event.type === "model") updateAgentStatus("IA trabalhando...", "#b7791f");
   if (event.type === "response") updateAgentStatus("Formatando entrega...", "#1f9d67");
@@ -655,10 +734,6 @@ function finalizeAgentRunPanel() {
   const monitor = $("#agent-run-monitor");
   if (live) live.classList.remove("waiting");
   if (monitor) monitor.classList.add("completed");
-  const steps = $("#agent-steps-details");
-  const raw = $("#agent-raw-details");
-  if (steps) steps.open = false;
-  if (raw) raw.open = false;
 }
 
 function traceLabel(type) {
@@ -684,7 +759,7 @@ function listCard(title, rows, formatter) {
 }
 
 function jsonCard(title, value, highlight = false) {
-  return `<div class="answer-card ${highlight ? "highlight" : ""}"><b>${escapeHtml(title)}</b><pre>${escapeHtml(JSON.stringify(value, null, 2))}</pre></div>`;
+  return `<div class="answer-card ${highlight ? "highlight" : ""}"><b>${escapeHtml(title)}</b><pre>${escapeHtml(JSON.stringify(sanitizeForDisplay(value), null, 2))}</pre></div>`;
 }
 
 function jsonDetails(title, value, open = false) {
@@ -692,7 +767,7 @@ function jsonDetails(title, value, open = false) {
     <details class="monitor-details" ${open ? "open" : ""}>
       <summary>${escapeHtml(title)}</summary>
       <div class="raw-event-list">
-        <pre class="raw-event">${escapeHtml(JSON.stringify(value, null, 2))}</pre>
+        <pre class="raw-event">${escapeHtml(JSON.stringify(sanitizeForDisplay(value), null, 2))}</pre>
       </div>
     </details>
   `;
@@ -700,7 +775,6 @@ function jsonDetails(title, value, open = false) {
 
 function renderMeetingPipeline(payload) {
   const record = payload?.record || payload || {};
-  const events = payload?.pipeline_events || record.pipeline_events || [];
   const context = Array.isArray(payload?.relevant_context)
     ? payload.relevant_context
     : (Array.isArray(record.relevant_context) ? record.relevant_context : []);
@@ -708,12 +782,12 @@ function renderMeetingPipeline(payload) {
     ? payload.memory_updates
     : _memoryUpdatesAsRows(record.memory_updates);
   const markdown = record.markdown_report || record.summary || payload?.message || "Aguardando processamento da reuniao.";
-  const mermaid = record.mermaid_diagram ? `\n\n\`\`\`mermaid\n${record.mermaid_diagram}\n\`\`\`` : "";
   return `
     <div class="answer-card highlight">
       <b>${escapeHtml(record.title || "Reuniao operacional")}</b>
-      <div class="markdown-body">${renderMarkdown(`${markdown}${mermaid}`)}</div>
+      <div class="markdown-body">${renderMarkdown(markdown)}</div>
     </div>
+    ${renderMeetingDiagram(payload)}
     <div class="report-grid">
       ${meetingSection("Insights", record.insights)}
       ${meetingSection("Decisoes", record.decisions)}
@@ -723,14 +797,95 @@ function renderMeetingPipeline(payload) {
       ${meetingSection("Contexto usado", context.map((item) => item.summary || item.id))}
       ${meetingSection("Memoria escrita", memory.map((item) => item.summary || item.title))}
     </div>
-    <details class="monitor-details" ${payload?.status === "completed" ? "" : "open"}>
-      <summary>Pipeline observavel</summary>
-      <div class="step-list">
-        ${events.map((event) => `<article class="step-event ${escapeHtml(event.type || "system")}"><strong>${escapeHtml(traceLabel(event.type || "system"))}</strong><p>${escapeHtml(event.message || event.event || "")}</p></article>`).join("") || `<div class="empty">Nenhum evento registrado ainda.</div>`}
-      </div>
-    </details>
-    ${jsonDetails("Registro tecnico salvo", payload, false)}
   `;
+}
+
+function renderMeetingDiagram(payload) {
+  const record = payload?.record || payload || {};
+  if (payload?.status !== "completed" && record.status !== "completed") return "";
+  const diagram = normalizeMermaidDiagram(record.mermaid_diagram || "");
+  if (!diagram) return "";
+  return `
+    <section class="meeting-flow-card">
+      <div class="meeting-flow-head">
+        <b>Fluxograma</b>
+        <span>Gerado depois da resposta da IA</span>
+      </div>
+      <div class="mermaid meeting-mermaid">${escapeHtml(diagram)}</div>
+    </section>
+  `;
+}
+
+function meetingDiagramFromRecord(record) {
+  if (!record) return "";
+  const decisions = Array.isArray(record.decisions) ? record.decisions.slice(0, 3) : [];
+  const actions = Array.isArray(record.next_actions) ? record.next_actions.slice(0, 4) : [];
+  const risks = Array.isArray(record.risks) ? record.risks.slice(0, 2) : [];
+  if (!decisions.length && !actions.length && !risks.length) return "";
+  const title = mermaidLabel(record.title || "Reuniao analisada");
+  const lines = [
+    "flowchart TD",
+    `  Start["${title}"]`,
+    '  Context["Contexto e objetivo alinhados"]',
+    "  Start --> Context",
+  ];
+  decisions.forEach((decision, index) => {
+    lines.push(`  Context --> Dec${index}["Decisao: ${mermaidLabel(decision)}"]`);
+  });
+  actions.forEach((action, index) => {
+    const source = decisions.length ? `Dec${Math.min(index, decisions.length - 1)}` : "Context";
+    lines.push(`  ${source} --> Act${index}["Acao: ${mermaidLabel(action)}"]`);
+  });
+  risks.forEach((risk, index) => {
+    lines.push(`  Context --> Risk${index}["Atencao: ${mermaidLabel(risk)}"]`);
+  });
+  lines.push(actions.length ? `  Act${actions.length - 1} --> End["Proximos passos definidos"]` : '  Context --> End["Reuniao estruturada"]');
+  return lines.join("\n");
+}
+
+function mermaidLabel(value) {
+  return String(value || "")
+    .replace(/"/g, "'")
+    .replace(/\[/g, "(")
+    .replace(/\]/g, ")")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 90);
+}
+
+function normalizeMermaidDiagram(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  const lines = text
+    .replace(/^```(?:mermaid)?/i, "")
+    .replace(/```$/i, "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (!lines.length) return "";
+  if (!/^(flowchart|graph)\s+/i.test(lines[0])) return "";
+  return lines.join("\n");
+}
+
+function parseMermaidLabels(diagram) {
+  const labels = [];
+  const text = String(diagram || "");
+  const pattern = /\b[A-Za-z][\w-]*\s*(?:\["([^"]+)"\]|\[([^\]]+)\]|\{([^}]+)\})/g;
+  let match = pattern.exec(text);
+  while (match) {
+    const label = cleanFlowLabel(match[1] || match[2] || match[3]);
+    if (label && !labels.includes(label)) labels.push(label);
+    match = pattern.exec(text);
+  }
+  return labels;
+}
+
+function cleanFlowLabel(value) {
+  return String(value || "")
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/[;{}[\]]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function _memoryUpdatesAsRows(memoryUpdates) {
@@ -768,7 +923,7 @@ function renderOperationalResult(title, payload) {
   ];
   const cards = sections.map(([label, rows]) => {
     const items = Array.isArray(rows) && rows.length
-      ? rows.slice(0, 5).map((item) => `<li>${escapeHtml(item.product_name || item.title || item.issue || item.recommended_action || JSON.stringify(item))}</li>`).join("")
+      ? rows.slice(0, 5).map((item) => `<li>${escapeHtml(item.product_name || item.title || item.issue || item.recommended_action || JSON.stringify(sanitizeForDisplay(item)))}</li>`).join("")
       : "<li>Nenhum item.</li>";
     return `<div class="report-section"><span>${escapeHtml(label)}</span><ul>${items}</ul></div>`;
   }).join("");
@@ -779,7 +934,6 @@ function renderOperationalResult(title, payload) {
       <div class="markdown-body">${renderMarkdown(report.executive_summary || payload?.message || "Relatorio gerado.")}</div>
       <div class="report-grid">${cards}</div>
     </div>
-    ${jsonCard("JSON validado", payload)}
   `;
 }
 
@@ -796,13 +950,11 @@ function renderDelivery(payload) {
   const header = `
     <div class="result-headline">
       <div>
-        <span class="result-source">${escapeHtml(payload?.source || payload?.mode || "operacional")}</span>
         <h3>${escapeHtml(payload?.title || "Resultado operacional")}</h3>
         <p>${escapeHtml(payload?.summary || "")}</p>
       </div>
       <div class="result-metrics">
-        <strong>${escapeHtml(metadata.duration_ms ?? "-")}</strong><span>ms</span>
-        <strong>${escapeHtml(metadata.llm_calls ?? 0)}</strong><span>IA calls</span>
+        <span class="summary-chip">${escapeHtml(friendlyDeliveryLabel(payload, metadata))}</span>
       </div>
     </div>
   `;
@@ -855,7 +1007,7 @@ function renderReportBlocks(report) {
   ];
   return `<div class="report-grid">${sections.map(([label, rows]) => {
     const list = Array.isArray(rows) && rows.length
-      ? rows.map((item) => `<li>${escapeHtml(item.product_name || item.title || item.issue || item.recommended_action || JSON.stringify(item))}</li>`).join("")
+      ? rows.map((item) => `<li>${escapeHtml(item.product_name || item.title || item.issue || item.recommended_action || JSON.stringify(sanitizeForDisplay(item)))}</li>`).join("")
       : "<li>Nenhum item.</li>";
     return `<div class="report-section"><span>${escapeHtml(label)}</span><ul>${list}</ul></div>`;
   }).join("")}</div>`;
@@ -865,32 +1017,142 @@ function renderNotice(title, message, level = "info") {
   return `<div class="result-notice ${escapeHtml(level)}"><b>${escapeHtml(title)}</b><p>${escapeHtml(message)}</p></div>`;
 }
 
-function appendRequestHistory(prompt, status, metadata = null) {
+function appendRequestHistory(prompt, status, payload = null) {
   const history = $("#request-history");
   if (!history) return;
-  const emptyNode = history.querySelector(".empty, .history-empty");
-  if (emptyNode) emptyNode.remove();
-  const pending = history.querySelector('[data-pending="true"]');
-  if (pending && status !== "enviado") {
-    pending.dataset.pending = "false";
-    pending.classList.add("active");
-    const timing = metadata?.duration_ms != null ? ` - ${metadata.duration_ms}ms` : "";
-    pending.innerHTML = `
-      <div class="history-block-label">${escapeHtml(status || "concluido")}${escapeHtml(timing)}</div>
-      <div class="history-block-meta"><span>${escapeHtml(prompt)}</span></div>
-    `;
+  const isPending = status === "enviado";
+  let item = state.requestHistory.find((entry) => entry.pending && entry.prompt === prompt);
+
+  if (!item) {
+    item = {
+      id: `history-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      prompt,
+      title: historyTitleFromPrompt(prompt),
+      subtitle: "Preparando entrega...",
+      html: "",
+      pending: isPending,
+      status,
+    };
+    state.requestHistory.unshift(item);
+  }
+
+  item.pending = isPending;
+  item.status = status;
+  if (payload && !isPending) {
+    item.title = historyTitleFromPrompt(prompt);
+    item.subtitle = payload.summary || payload.message || friendlyStatus(status);
+    item.html = payload.__html || renderDelivery(payload);
+  }
+  if (isPending) item.subtitle = "Consultando dados operacionais...";
+
+  state.activeHistoryId = item.id;
+  renderRequestHistory();
+}
+
+function renderRequestHistory() {
+  const history = $("#request-history");
+  if (!history) return;
+  if (!state.requestHistory.length) {
+    history.innerHTML = '<div class="history-empty">Nenhuma consulta ainda.<br>Selecione uma opcao acima.</div>';
     return;
   }
-  const item = document.createElement("div");
-  item.className = "history-block active";
-  item.dataset.pending = status === "enviado" ? "true" : "false";
-  history.querySelectorAll(".history-block").forEach((entry) => entry.classList.remove("active"));
-  const timing = metadata?.duration_ms != null ? ` - ${metadata.duration_ms}ms` : "";
-  item.innerHTML = `
-    <div class="history-block-label">${escapeHtml(status || "pedido")}${escapeHtml(timing)}</div>
-    <div class="history-block-meta"><span>${escapeHtml(prompt)}</span></div>
-  `;
-  history.prepend(item);
+  history.innerHTML = state.requestHistory.map((item) => `
+    <button class="history-block ${item.id === state.activeHistoryId ? "active" : ""}" data-history-id="${escapeHtml(item.id)}" data-pending="${item.pending ? "true" : "false"}" type="button">
+      <div class="history-block-label">${escapeHtml(item.title)}</div>
+      <div class="history-block-meta"><span>${escapeHtml(item.subtitle)}</span></div>
+    </button>
+  `).join("");
+  history.querySelectorAll("[data-history-id]").forEach((button) => {
+    button.addEventListener("click", () => openHistoryItem(button.dataset.historyId));
+  });
+}
+
+function openHistoryItem(id) {
+  const item = state.requestHistory.find((entry) => entry.id === id);
+  if (!item) return;
+  state.activeHistoryId = id;
+  renderRequestHistory();
+  if (item.html) {
+    setResultStage(item.html);
+    return;
+  }
+  setResultStage(renderNotice(item.title, item.subtitle || "Entrega em andamento.", "loading"));
+}
+
+function historyTitleFromPrompt(prompt) {
+  const cleaned = String(prompt || "")
+    .replace(/^(liste|busque|procure|mostre|quais sao|qual e|me mostre|executar|rode)\s+/i, "")
+    .replace(/[?.!]+$/g, "")
+    .trim();
+  return clipText(cleaned || "Consulta operacional", 54);
+}
+
+function friendlyStatus(status) {
+  return {
+    completed: "Entrega concluida",
+    no_data: "Nenhum dado encontrado",
+    needs_clarification: "Precisa de mais detalhes",
+    error: "Falha na entrega",
+    erro: "Falha na entrega",
+    model_unavailable: "Modelo indisponivel",
+    ai_busy: "IA ocupada",
+  }[status] || "Entrega registrada";
+}
+
+function friendlyDeliveryLabel(payload, metadata = {}) {
+  const source = String(payload?.source || payload?.mode || "").toLowerCase();
+  if (payload?.status && payload.status !== "completed") return friendlyStatus(payload.status);
+  if (source.includes("database") || source.includes("sqlite")) return "Banco de dados";
+  if (source.includes("agent") || (source.includes("lm") && source.includes("studio")) || Number(metadata.llm_calls || 0) > 0) return "Assistente";
+  if (source.includes("report")) return "Relatorio";
+  return "Operacional";
+}
+
+function clipText(value, maxLength = 72) {
+  const text = scrubDisplayText(String(value || "").replace(/\s+/g, " ").trim());
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, Math.max(0, maxLength - 1)).trim()}...`;
+}
+
+function formatDateTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return scrubDisplayText(value);
+  return date.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function sanitizeForDisplay(value, key = "") {
+  if (Array.isArray(value)) return value.map((item) => sanitizeForDisplay(item, key));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([childKey, childValue]) => [
+      childKey,
+      sanitizeForDisplay(childValue, childKey),
+    ]));
+  }
+  if (typeof value === "string") {
+    if (/(^|_)(path|file|arquivo)(_|$)/i.test(key) && /[\\/]/.test(value)) {
+      return fileNameFromPath(value);
+    }
+    return scrubDisplayText(value);
+  }
+  return value;
+}
+
+function fileNameFromPath(value) {
+  return String(value || "").split(/[\\/]/).filter(Boolean).pop() || "arquivo salvo";
+}
+
+function scrubDisplayText(value) {
+  return String(value ?? "")
+    .replace(/\blm[_-]?studio(?:[_-]?tools)?\b/gi, "Assistente local")
+    .replace(/\bsqlite\b/gi, "Banco local")
+    .replace(/[A-Za-z]:\\(?:[^\\\r\n]+\\)*([^\\\r\n]+)/g, "$1");
 }
 
 function columnsForSearch(intent) {
@@ -930,7 +1192,7 @@ function columnsForSearch(intent) {
 
 function formatCell(value) {
   if (Array.isArray(value)) return escapeHtml(value.join(", "));
-  if (value && typeof value === "object") return escapeHtml(JSON.stringify(value));
+  if (value && typeof value === "object") return escapeHtml(JSON.stringify(sanitizeForDisplay(value)));
   if (value === null || value === undefined || value === "") return '<span class="muted">-</span>';
   return escapeHtml(value);
 }
@@ -966,8 +1228,14 @@ function renderMarkdown(markdown) {
 }
 
 async function renderMermaidBlocks(root) {
-  if (!window.mermaid) return;
-  const blocks = Array.from(root.querySelectorAll("code.language-mermaid, pre.mermaid"));
+  const blocks = Array.from(root.querySelectorAll(".mermaid, code.language-mermaid, pre.mermaid"));
+  if (!blocks.length) return;
+  if (!window.mermaid) {
+    blocks.forEach((block) => {
+      block.outerHTML = '<div class="mermaid-error-box">Nao foi possivel carregar o renderizador de fluxograma.</div>';
+    });
+    return;
+  }
   for (const block of blocks) {
     const source = block.textContent || "";
     const host = block.closest("pre") || block;
@@ -976,10 +1244,8 @@ async function renderMermaidBlocks(root) {
       const id = `mermaid-${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const rendered = await window.mermaid.render(id, source);
       host.outerHTML = `<div class="mermaid-block">${rendered.svg}</div>`;
-      host.dataset.rendered = "true";
     } catch (error) {
-      host.classList.add("mermaid-error");
-      host.title = error.message;
+      host.outerHTML = '<div class="mermaid-error-box">Nao foi possivel renderizar o fluxograma desta reuniao.</div>';
     }
   }
 }
@@ -1046,7 +1312,7 @@ function tableEmpty(message) {
 }
 
 function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"]/g, (char) => ({
+  return scrubDisplayText(value).replace(/[&<>"]/g, (char) => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",

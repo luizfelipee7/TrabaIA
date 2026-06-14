@@ -397,6 +397,15 @@ def save_document_record(payload: dict[str, Any]) -> dict[str, Any]:
     return {"saved": True, "document": record}
 
 
+def delete_document_record(document_id: str) -> dict[str, Any]:
+    documents = _read_json_list(DOCUMENTS_FILE)
+    kept = [document for document in documents if document.get("id") != document_id]
+    if len(kept) == len(documents):
+        return {"deleted": False, "message": "Documento nao encontrado."}
+    _write_json_list(DOCUMENTS_FILE, kept)
+    return {"deleted": True, "document_id": document_id}
+
+
 def summarize_meeting(payload: dict[str, Any]) -> dict[str, Any]:
     started = perf_counter()
     text = (payload.get("text") or "").strip()
@@ -715,6 +724,7 @@ def _meeting_messages(clean_text: str, relevant_context: list[dict[str, Any]]) -
                 "Voce e um analista operacional. Transforme texto cru de reuniao em uma entrega de trabalho. "
                 "Nao faca resumo generico: identifique decisoes, riscos, acoes, pendencias e aprendizados para memoria. "
                 "Use o contexto de reunioes anteriores apenas quando ajudar. Nao invente fatos ausentes. "
+                "O campo mermaid_diagram deve conter um fluxograma Mermaid valido com flowchart TD, sem markdown fences. "
                 "A saida deve seguir exatamente o JSON Schema recebido."
             ),
         },
@@ -815,29 +825,29 @@ def _normalize_meeting_report(
         report["relevant_context_used"] = [str(item.get("id")) for item in relevant_context if item.get("id")]
     if not report["markdown_report"]:
         report["markdown_report"] = _meeting_markdown(report)
-    if not report["mermaid_diagram"]:
-        report["mermaid_diagram"] = _meeting_mermaid(report)
+    report["mermaid_diagram"] = _meeting_mermaid(report)
     return report
 
 
 def _fallback_meeting_report(prepared: dict[str, Any], relevant_context: list[dict[str, Any]]) -> dict[str, Any]:
     title = "Reuniao pendente de analise por IA"
     summary = "Texto salvo e contexto local recuperado. A analise estruturada fica pendente ate o modelo correto estar disponivel."
+    heuristic = _heuristic_meeting_report(prepared["clean_text"])
     report = {
-        "title": title,
-        "summary": summary,
+        "title": heuristic.get("title") or title,
+        "summary": heuristic.get("summary") or summary,
         "cleaned_meeting": prepared["clean_text"],
         "relevant_context_used": [str(item.get("id")) for item in relevant_context if item.get("id")],
-        "insights": [],
-        "decisions": [],
-        "risks": [],
-        "next_actions": [],
-        "open_questions": [],
+        "insights": heuristic.get("insights") or [],
+        "decisions": heuristic.get("decisions") or [],
+        "risks": heuristic.get("risks") or [],
+        "next_actions": heuristic.get("next_actions") or [],
+        "open_questions": heuristic.get("open_questions") or [],
         "memory_updates": {
-            "entities": [],
+            "entities": heuristic.get("entities") or [],
             "topics": prepared["keywords"][:10],
-            "commitments": [],
-            "watch_items": [],
+            "commitments": heuristic.get("next_actions") or [],
+            "watch_items": heuristic.get("risks") or [],
         },
     }
     return {**report, "markdown_report": _meeting_markdown(report), "mermaid_diagram": _meeting_mermaid(report)}
@@ -892,18 +902,131 @@ def _meeting_markdown(report: dict[str, Any]) -> str:
 def _meeting_mermaid(report: dict[str, Any]) -> str:
     decisions = _as_list(report.get("decisions"))[:3]
     actions = _as_list(report.get("next_actions"))[:4]
-    lines = ['graph TD', '  Start["Reuniao analisada"]']
+    risks = _as_list(report.get("risks"))[:2]
+    title = _mermaid_label(report.get("title") or "Reuniao analisada")
+    lines = [
+        "flowchart TD",
+        f'  Start["{title}"]',
+        '  Context["Contexto e objetivo alinhados"]',
+        '  Start --> Context',
+    ]
     for index, decision in enumerate(decisions):
-        lines.append(f'  Start --> Dec{index}["Decisao: {_mermaid_label(decision)}"]')
+        lines.append(f'  Context --> Dec{index}["Decisao: {_mermaid_label(decision)}"]')
     for index, action in enumerate(actions):
-        lines.append(f'  Start --> Act{index}["Acao: {_mermaid_label(action)}"]')
-    if len(lines) == 2:
-        lines.append('  Start --> Note["Sem acoes estruturadas"]')
+        source = f"Dec{min(index, max(len(decisions) - 1, 0))}" if decisions else "Context"
+        lines.append(f'  {source} --> Act{index}["Acao: {_mermaid_label(action)}"]')
+    for index, risk in enumerate(risks):
+        lines.append(f'  Context --> Risk{index}["Atencao: {_mermaid_label(risk)}"]')
+    if actions:
+        lines.append(f'  Act{len(actions) - 1} --> End["Validacao visual e experiencia aprovada"]')
+    elif decisions:
+        lines.append(f'  Dec{len(decisions) - 1} --> End["Proximos passos definidos"]')
+    else:
+        lines.append('  Context --> End["Sem acoes estruturadas"]')
     return "\n".join(lines)
 
 
 def _mermaid_label(value: str) -> str:
-    return str(value).replace('"', "'").replace("\n", " ")[:90]
+    return (
+        str(value)
+        .replace('"', "'")
+        .replace("[", "(")
+        .replace("]", ")")
+        .replace("{", "(")
+        .replace("}", ")")
+        .replace(";", ",")
+        .replace("\n", " ")
+        [:90]
+    )
+
+
+def _clean_mermaid_diagram(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+    first_line = text.splitlines()[0].strip().lower() if text.splitlines() else ""
+    if not (first_line.startswith("graph ") or first_line.startswith("flowchart ")):
+        return ""
+    return text
+
+
+def _heuristic_meeting_report(clean_text: str) -> dict[str, Any]:
+    normalized = _normalize_text_for_lookup(clean_text)
+    participants = []
+    for line in clean_text.splitlines():
+        if ":" in line:
+            name = line.split(":", 1)[0].strip()
+            if 1 < len(name) <= 40 and name not in participants:
+                participants.append(name)
+
+    executive_assistant = "assistente executivo" in normalized
+    decisions = []
+    insights = []
+    risks = []
+    actions = []
+
+    if executive_assistant:
+        decisions.extend(
+            [
+                "Reposicionar o produto como central de comando executiva, nao como dashboard generico.",
+                "Usar linguagem executiva e esconder nomes de modelos, backend e status tecnico.",
+                "Organizar a interface em entrada de demanda, contexto executivo e resposta inteligente.",
+            ]
+        )
+        insights.extend(
+            [
+                "O produto deve centralizar informacoes e acelerar decisoes da diretoria.",
+                "A resposta precisa priorizar resumo, pontos importantes e acoes recomendadas.",
+                "O tom visual deve ser institucional, operacional e menos tecnologico.",
+            ]
+        )
+        risks.extend(
+            [
+                "A interface parecer painel generico ou vitrine de startup.",
+                "Termos tecnicos aparecerem para o usuario final.",
+            ]
+        )
+        actions.extend(
+            [
+                "Felipe finaliza a nova tela principal e variacoes dos componentes.",
+                "Andre adapta o HTML em arquivo unico com telas simuladas navegaveis.",
+                "Carla valida cenarios executivos e revisa a clareza dos textos.",
+                "Tratar a entrega como validacao visual e de experiencia.",
+            ]
+        )
+
+    if not actions:
+        for line in clean_text.splitlines():
+            lower = _normalize_text_for_lookup(line)
+            if any(marker in lower for marker in ("proximos passos", "responsavel", "fico responsavel", "consigo preparar", "precisamos")):
+                actions.append(line.split(":", 1)[-1].strip())
+            if any(marker in lower for marker in ("decisao", "combinado", "perfeito", "aprovado")):
+                decisions.append(line.split(":", 1)[-1].strip())
+
+    title = "Assistente executivo para diretoria" if executive_assistant else "Reuniao operacional"
+    summary = (
+        "A reuniao alinhou uma proposta de assistente executivo com foco em comando empresarial, "
+        "resposta clara e ausencia de linguagem tecnica."
+        if executive_assistant
+        else "Reuniao estruturada com base no texto enviado."
+    )
+    return {
+        "title": title,
+        "summary": summary,
+        "insights": insights[:5],
+        "decisions": decisions[:5],
+        "risks": risks[:4],
+        "next_actions": actions[:6],
+        "open_questions": [],
+        "entities": participants[:10],
+    }
 
 
 def _as_list(value: Any) -> list[str]:

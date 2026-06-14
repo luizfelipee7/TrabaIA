@@ -1,0 +1,15 @@
+[
+  {
+    "id": "doc-20260614-054736-c693681a",
+    "created_at": "2026-06-14T05:47:36.012324",
+    "supplier_name": "Tech Solutions LTDA",
+    "date": "2026-06-14",
+    "amount": "1.250,00",
+    "due_date": "2026-07-14",
+    "description": "Compra de sensores e componentes eletrônicos para projeto de monitoramento ambiental.",
+    "category": "Equipamentos de TI",
+    "notes": "Pagamento via boleto bancário. Material destinado à fase inicial de testes do projeto.",
+    "file_path": "",
+    "status": "saved_for_review"
+  }
+]

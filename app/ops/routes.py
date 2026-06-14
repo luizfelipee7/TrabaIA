@@ -151,6 +151,14 @@ def documents(limit: int = 50):
     return {"documents": ops.list_documents(limit=limit)}
 
 
+@router.delete("/ops/ocr/documents/{document_id}")
+def delete_document(document_id: str):
+    result = ops.delete_document_record(document_id)
+    if not result.get("deleted"):
+        raise HTTPException(status_code=404, detail=result.get("message") or "Documento nao encontrado.")
+    return result
+
+
 @router.post("/ops/stt/transcribe")
 async def stt_transcribe(file: UploadFile = File(...)):
     content = await file.read()

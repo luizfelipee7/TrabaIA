@@ -56,31 +56,13 @@
         </button>
       </nav>
 
-      <div class="sidebar-footer">
-        <span class="status-dot" id="model-status-dot" title="Sistema online"></span>
-        <div class="sidebar-user-info">
-          <strong id="model-status-text">Checando IA local...</strong>
-          <span id="selected-model">{{ selected_model }}</span>
-        </div>
-      </div>
     </aside>
 
     <main class="main page-view active" id="page-assistente">
       <header class="topbar">
         <div>
           <div class="topbar-title">Painel</div>
-          <div class="topbar-subtitle" id="runtime-status-text">Runtime: livre</div>
-        </div>
-        <div class="topbar-actions">
-          <span class="system-pill" id="agent-status-pill">
-            <i class="mini-dot" id="agent-status-led"></i>
-            <span id="agent-status-text">Ocioso</span>
-          </span>
-          <span class="system-pill" id="stt-status-text">STT: checando...</span>
-          <span class="system-pill" id="ocr-status-text">OCR: checando...</span>
-          <button class="icon-btn" title="Limpar" id="btn-clear-painel" type="button">
-            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-          </button>
+          <div class="topbar-subtitle" id="runtime-status-text">Pronto para consultas operacionais</div>
         </div>
       </header>
 
@@ -159,10 +141,6 @@
         <div class="kpi-grid" id="dashboard-kpis"></div>
         <div class="overview-grid">
           <section class="section-card">
-            <div class="section-card-head"><h3>Saude das integracoes</h3><span class="count-tag" id="integration-tag">Checando</span></div>
-            <div class="section-card-body" id="integration-status"></div>
-          </section>
-          <section class="section-card">
             <div class="section-card-head"><h3>Acoes rapidas</h3></div>
             <div class="section-card-body">
               <button class="action-btn" data-quick-search="itens com menor estoque" type="button">
@@ -178,16 +156,6 @@
                 <span class="action-arrow"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
               </button>
             </div>
-          </section>
-        </div>
-        <div class="overview-grid">
-          <section class="section-card">
-            <div class="section-card-head"><h3>Ultimas execucoes</h3></div>
-            <div class="section-card-body" id="recent-runs"></div>
-          </section>
-          <section class="section-card">
-            <div class="section-card-head"><h3>Logs observaveis</h3></div>
-            <div class="section-card-body" id="recent-logs"></div>
           </section>
         </div>
         <section class="section-card">
@@ -207,7 +175,6 @@
       <div class="page-content">
         <div class="search-bar">
           <div class="search-input-wrap">
-            <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input class="search-input" id="db-search" placeholder="Pesquisa rapida geral..." autocomplete="off">
           </div>
           <select class="filter-select" id="db-scope">
@@ -252,10 +219,6 @@
               <input type="file" id="bill-file-selector" accept="image/*,.pdf" hidden>
             </label>
             <div class="ocr-preview-box" id="ocr-preview">Nenhum documento enviado</div>
-            <section class="section-card compact">
-              <div class="section-card-head"><h3>Retorno OCR</h3></div>
-              <div class="section-card-body padded" id="contas-output"></div>
-            </section>
           </div>
 
           <div class="form-card">
@@ -298,6 +261,17 @@
           </div>
         </div>
 
+        <div class="meeting-tools">
+          <button class="meeting-tool-button" id="open-meeting-history" type="button">
+            <span>Historico de reunioes</span>
+            <small>Consultar entregas salvas</small>
+          </button>
+          <button class="meeting-tool-button" id="open-meeting-memory" type="button">
+            <span>Memoria escrita pela IA</span>
+            <small>Ver contexto salvo</small>
+          </button>
+        </div>
+
         <div class="reunioes-result-container" id="meeting-results"></div>
         <div class="reunioes-result-container" id="reunioes-output">
           <div class="meeting-placeholder">
@@ -306,14 +280,29 @@
           </div>
         </div>
 
-        <div class="overview-grid">
-          <section class="section-card">
-            <div class="section-card-head"><h3>Historico de reunioes</h3></div>
-            <div class="section-card-body" id="meeting-history"></div>
+        <div class="meeting-modal" id="meeting-history-modal" role="dialog" aria-modal="true" aria-labelledby="meeting-history-title" hidden>
+          <section class="meeting-modal-card">
+            <div class="meeting-modal-head">
+              <div>
+                <h3 id="meeting-history-title">Historico de reunioes</h3>
+                <span>Ultimas notas estruturadas pela IA</span>
+              </div>
+              <button class="modal-close-btn" data-close-modal type="button">Fechar</button>
+            </div>
+            <div class="meeting-scroll" id="meeting-history"></div>
           </section>
-          <section class="section-card">
-            <div class="section-card-head"><h3>Memoria escrita pela IA</h3></div>
-            <div class="section-card-body" id="meeting-memory"></div>
+        </div>
+
+        <div class="meeting-modal" id="meeting-memory-modal" role="dialog" aria-modal="true" aria-labelledby="meeting-memory-title" hidden>
+          <section class="meeting-modal-card">
+            <div class="meeting-modal-head">
+              <div>
+                <h3 id="meeting-memory-title">Memoria escrita pela IA</h3>
+                <span>Contexto operacional salvo para proximas analises</span>
+              </div>
+              <button class="modal-close-btn" data-close-modal type="button">Fechar</button>
+            </div>
+            <div class="meeting-scroll" id="meeting-memory"></div>
           </section>
         </div>
       </div>
