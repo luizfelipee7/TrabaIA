@@ -79,17 +79,13 @@ async function refreshModels() {
 
 async function selectModel() {
   const modelName = modelSelect.value || selectedModel.textContent;
-  const attemptLoad = document.querySelector("#attempt-load").checked;
   const data = await fetchJson("/ai/models/select", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({model_name: modelName, attempt_load: attemptLoad}),
+    body: JSON.stringify({model_name: modelName}),
   });
   selectedModel.textContent = data.selected_model || selectedModel.textContent;
   let message = data.message || "Modelo selecionado.";
-  if (data.load_attempt) {
-    message += ` Carga nativa: ${data.load_attempt.ok ? "ok" : data.load_attempt.message}`;
-  }
   setStatus(modelStatus, message, data.ok ? "ok" : "error");
 }
 

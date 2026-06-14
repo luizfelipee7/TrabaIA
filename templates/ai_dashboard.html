@@ -28,18 +28,14 @@
       <section class="model-bar panel">
         <div>
           <h2>Modelos</h2>
-          <p class="muted">Selecione o modelo usado nas próximas execuções.</p>
+          <p class="muted">Lista modelos do LM Studio. As rotinas reais usam a política por tarefa.</p>
         </div>
         <div id="model-status" class="status muted">Aguardando LM Studio.</div>
         <label for="model-select">Modelo</label>
         <select id="model-select"></select>
-        <label class="check">
-          <input id="attempt-load" type="checkbox">
-          Tentar carga nativa
-        </label>
         <div class="button-row">
           <button id="refresh-models" type="button">Atualizar modelos</button>
-          <button id="select-model" type="button">Usar modelo</button>
+          <button id="select-model" type="button">Selecionar para teste manual</button>
         </div>
       </section>
 

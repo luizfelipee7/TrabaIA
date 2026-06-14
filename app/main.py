@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from app.ai.routes import router as ai_router
 from app.database import create_db_and_tables
 from app.database import BASE_DIR
+from app.ops.routes import router as operational_router
 from app.routes import router
 
 
@@ -27,3 +28,4 @@ def health_check() -> dict[str, str]:
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 app.include_router(router)
 app.include_router(ai_router)
+app.include_router(operational_router)

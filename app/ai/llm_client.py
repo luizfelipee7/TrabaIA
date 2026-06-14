@@ -8,6 +8,8 @@ from urllib.parse import urlparse
 from openai import APIConnectionError, APITimeoutError, BadRequestError, OpenAI, OpenAIError
 from openai.types.chat import ChatCompletion
 
+from app.ai.runtime_guard import acquire_ai_runtime
+
 
 DEFAULT_BASE_URL = os.getenv("LM_STUDIO_BASE_URL", "http://localhost:1234/v1")
 DEFAULT_API_KEY = os.getenv("LM_STUDIO_API_KEY", "lm-studio")
@@ -49,20 +51,27 @@ class LocalLLMClient:
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]] | None = None,
         tool_choice: str = "auto",
+        response_format: dict[str, Any] | None = None,
+        max_tokens: int | None = None,
     ) -> ChatCompletion:
         try:
-            request: dict[str, Any] = {
-                "model": self.model,
-                "messages": messages,
-                "temperature": 0.1,
-            }
-            if tools:
-                request["tools"] = tools
-                request["tool_choice"] = tool_choice
+            with acquire_ai_runtime("model_call", model=self.model):
+                request: dict[str, Any] = {
+                    "model": self.model,
+                    "messages": messages,
+                    "temperature": 0.1,
+                }
+                if tools:
+                    request["tools"] = tools
+                    request["tool_choice"] = tool_choice
+                if response_format:
+                    request["response_format"] = response_format
+                if max_tokens:
+                    request["max_tokens"] = max_tokens
 
-            response = self.client.chat.completions.create(
-                **request,
-            )
+                response = self.client.chat.completions.create(
+                    **request,
+                )
         except APITimeoutError as exc:
             raise LocalLLMError("Timeout ao chamar o LM Studio.") from exc
         except APIConnectionError as exc:
@@ -74,9 +83,9 @@ class LocalLLMClient:
 
         return response
 
-    def chat(self, messages: list[dict[str, Any]]) -> str:
+    def chat(self, messages: list[dict[str, Any]], max_tokens: int | None = None) -> str:
         try:
-            response = self.chat_completion(messages)
+            response = self.chat_completion(messages, max_tokens=max_tokens)
             content = response.choices[0].message.content
         except LocalLLMError:
             raise
@@ -92,7 +101,7 @@ class LocalLLMClient:
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]],
     ) -> ChatCompletion:
-        return self.chat_completion(messages=messages, tools=tools, tool_choice="auto")
+        return self.chat_completion(messages=messages, tools=tools, tool_choice="auto", max_tokens=512)
 
     def list_models(self) -> dict[str, Any]:
         try:
@@ -132,46 +141,17 @@ class LocalLLMClient:
             "selected_model": cleaned,
             "is_known_to_last_model_list": is_known,
             "message": (
-                "Modelo selecionado para as proximas chamadas. "
-                "Se ele nao estiver carregado no LM Studio, a chamada de chat pode falhar."
+                "Modelo selecionado para testes manuais. As rotinas operacionais usam a politica "
+                "por tarefa; ajuste AI_WORKER_MODEL, AI_QUALITY_MODEL ou AI_BALANCED_MODEL para "
+                "trocar o modelo padrao de producao."
             ),
         }
 
     def load_model(self, model_name: str) -> dict[str, Any]:
-        """Optional LM Studio native API load attempt.
-
-        The OpenAI-compatible API selects a model by name per request. LM Studio's
-        native REST API exposes model loading separately at /api/v1/models/load.
-        """
-        import urllib.error
-        import urllib.request
-        import json
-
-        native_base = self.base_url.replace("/v1", "/api/v1").rstrip("/")
-        url = f"{native_base}/models/load"
-        payload = json.dumps({"model": model_name}).encode("utf-8")
-        request = urllib.request.Request(
-            url,
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST",
+        raise LocalLLMError(
+            "Carga nativa de modelo desabilitada. Mantenha apenas um modelo carregado no LM Studio "
+            "e deixe a aplicacao selecionar o nome do modelo por tarefa."
         )
-        token = os.getenv("LM_STUDIO_API_TOKEN")
-        if token:
-            request.add_header("Authorization", f"Bearer {token}")
-
-        try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
-                body = response.read().decode("utf-8")
-                parsed = json.loads(body) if body else {}
-                return {"ok": True, "message": "Solicitacao de carga enviada.", "data": parsed}
-        except urllib.error.HTTPError as exc:
-            body = exc.read().decode("utf-8", errors="replace")
-            raise LocalLLMError(f"LM Studio recusou o carregamento do modelo: {body}") from exc
-        except urllib.error.URLError as exc:
-            raise LocalLLMError("Endpoint nativo de carga do LM Studio indisponivel.") from exc
-        except TimeoutError as exc:
-            raise LocalLLMError("Timeout ao tentar carregar modelo no LM Studio.") from exc
 
 
 def _ensure_local_base_url(base_url: str) -> None:

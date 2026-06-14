@@ -1,0 +1,23 @@
+[
+  {
+    "id": "mem-20260614-020224-27a38f9c",
+    "meeting_id": "meeting-20260614-020224-12c991c5",
+    "created_at": "2026-06-14T02:02:24.861626",
+    "updated_at": "2026-06-14T02:02:24.861631",
+    "status": "active",
+    "title": "Alinhamento da Nova Proposta do Assistente Executivo",
+    "summary": "A reunião focou em refinar o design e a experiência de usuário (UX) para o assistente executivo interno da diretoria, abandonando dashboards genéricos em favor de uma 'central de comando pessoal' elegante e funcional. Foi definida a estrutura visual e os próximos passos para criar um protótipo navegável focado na validação de experiência.",
+    "topics": [
+      "UX e Design Institucional",
+      "Estrutura da Central de Comando",
+      "Validação de Prototipagem"
+    ],
+    "entities": [
+      "Assistente Executivo: Central de comando pessoal para a diretoria, focado em facilitar decisões rápidas e centralizar informações. Deve ter linguagem executiva e design institucional.",
+      "Estrutura da Interface: Dividida em três áreas (Entrada de Demanda, Contexto Executivo, Resposta Inteligente).",
+      "Próxima Entrega: Protótipo navegável/simulação visual para validação de UX."
+    ],
+    "commitments": [],
+    "watch_items": []
+  }
+]

@@ -1,0 +1,2649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cartao de Todos - Assistente Operacional (MOCK)</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --blue: #1f4d7a;
+      --blue-dark: #153758;
+      --red: #ba2433;
+      --gold: #b89556;
+      --cream: #fbfaf7;
+      --paper: #ffffff;
+      --soft: #f6f1e7;
+      --line: #e8dcc9;
+      --line-cool: #e6eaf0;
+      --ink: #172033;
+      --muted: #667085;
+      --success: #1f9d67;
+      --warning: #b7791f;
+      --danger: #ba2433;
+      --teal: #12706c;
+      --purple: #6b46c1;
+      --shadow: 0 24px 70px rgba(17, 35, 70, .12);
+      --shadow-soft: 0 10px 30px rgba(17, 35, 70, .08);
+      --radius: 12px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #eef2f6;
+      color: var(--ink)
+    }
+
+    button, input, textarea, select {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+      color: #344054;
+      font-size: 13px;
+      font-weight: 800
+    }
+
+    .page {
+      min-height: 100dvh;
+      padding: clamp(12px, 2vw, 22px);
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f6 100%)
+    }
+
+    .shell {
+      max-width: 1540px;
+      min-height: calc(100dvh - clamp(24px, 4vw, 44px));
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .topbar {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex: 0 0 auto
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 286px
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue), #2d6cdf 58%, var(--red));
+      box-shadow: 0 14px 40px rgba(18, 61, 140, .18);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: 0
+    }
+
+    .brand small {
+      display: block;
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      font-size: 11px
+    }
+
+    .brand h1 {
+      margin: 2px 0 0;
+      font-size: 21px;
+      letter-spacing: 0;
+      line-height: 1.05
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0
+    }
+
+    .nav-tab {
+      border: 1px solid var(--line-cool);
+      background: #fff;
+      color: #344054;
+      padding: 10px 13px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      transition: .18s ease;
+      white-space: nowrap
+    }
+
+    .nav-tab:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft)
+    }
+
+    .nav-tab.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(31, 77, 122, .2)
+    }
+
+    .owner-chip, .model-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid var(--line-cool);
+      border-radius: 10px;
+      padding: 9px 14px;
+      box-shadow: var(--shadow-soft);
+      font-size: 13px;
+      font-weight: 800;
+      color: #344054;
+      white-space: nowrap
+    }
+
+    .owner-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--soft);
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      font-weight: 900
+    }
+
+    .model-strip {
+      justify-content: flex-start;
+      overflow: auto;
+      box-shadow: none;
+      flex-wrap: wrap;
+      white-space: normal
+    }
+
+    .soft-separator {
+      height: 18px;
+      width: 1px;
+      background: var(--line-cool);
+      display: inline-block
+    }
+
+    .mini-btn {
+      border: 1px solid var(--line-cool);
+      background: #fff;
+      color: #344054;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 900
+    }
+
+    .mini-btn:hover {
+      background: #f8fafc
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(620px, 1fr) minmax(340px, 430px);
+      gap: 20px;
+      min-height: 0;
+      flex: 1
+    }
+
+    .work, .response {
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .72)
+    }
+
+    .work {
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      min-width: 0
+    }
+
+    .response {
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      min-width: 0
+    }
+
+    .tab-pane {
+      display: none;
+      height: 100%;
+      min-height: 0
+    }
+
+    .tab-pane.active {
+      display: flex;
+      flex-direction: column
+    }
+
+    .app-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 21px 24px;
+      border-bottom: 1px solid rgba(232, 220, 201, .72);
+      flex: 0 0 auto
+    }
+
+    .app-title h2 {
+      font-size: 24px;
+      margin: 0;
+      letter-spacing: 0;
+      line-height: 1.1
+    }
+
+    .app-title span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.45;
+      max-width: 790px
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #344054;
+      background: #fff;
+      border: 1px solid var(--line-cool);
+      border-radius: 999px;
+      padding: 8px 12px;
+      white-space: nowrap
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 5px rgba(31, 157, 103, .12)
+    }
+
+    .muted-dot {
+      background: var(--warning);
+      box-shadow: 0 0 0 5px rgba(183, 121, 31, .12)
+    }
+
+    .dot.danger {
+      background: var(--danger);
+      box-shadow: 0 0 0 5px rgba(186, 36, 51, .12)
+    }
+
+    .canvas {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      margin: 20px 24px;
+      border-radius: 12px;
+      padding: 22px;
+      background: #fff;
+      border: 1px solid #ece7dc
+    }
+
+    .canvas::-webkit-scrollbar, .response-body::-webkit-scrollbar {
+      width: 8px
+    }
+
+    .canvas::-webkit-scrollbar-thumb, .response-body::-webkit-scrollbar-thumb {
+      background: #d6dce7;
+      border-radius: 999px
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px
+    }
+
+    .card {
+      border-radius: 8px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line-cool);
+      box-shadow: 0 8px 22px rgba(17, 35, 70, .035)
+    }
+
+    .card.soft {
+      background: var(--soft);
+      border-color: var(--line)
+    }
+
+    .card h3 {
+      margin: 0 0 9px;
+      font-size: 17px;
+      letter-spacing: 0
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px
+    }
+
+    .kpi {
+      border-radius: 8px;
+      padding: 16px;
+      background: #f7f9fc;
+      border: 1px solid var(--line-cool)
+    }
+
+    .kpi strong {
+      font-size: 25px;
+      display: block;
+      letter-spacing: 0
+    }
+
+    .kpi span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      display: block;
+      margin-top: 3px
+    }
+
+    .tag {
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #f0f4ff;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap
+    }
+
+    .tag.red {
+      background: #fff0f1;
+      color: var(--red)
+    }
+
+    .tag.gold {
+      background: #fff8e8;
+      color: #8a5a13
+    }
+
+    .tag.green {
+      background: #eaf4ef;
+      color: #166a47
+    }
+
+    .tag.purple {
+      background: #f3efff;
+      color: var(--purple)
+    }
+
+    .task-list, .document-list, .meeting-list, .account-list, .dashboard-list, .status-list {
+      display: grid;
+      gap: 12px
+    }
+
+    .row-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      border: 1px solid var(--line-cool);
+      background: #fff;
+      border-radius: 8px;
+      padding: 14px
+    }
+
+    .row-item b {
+      display: block;
+      font-size: 14px
+    }
+
+    .row-item span {
+      color: var(--muted);
+      font-size: 12px;
+      display: block;
+      margin-top: 4px;
+      line-height: 1.42
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 15px;
+      font-weight: 900;
+      background: var(--blue);
+      color: #fff;
+      white-space: nowrap;
+      transition: .18s ease
+    }
+
+    .btn:hover {
+      background: var(--blue-dark);
+      transform: translateY(-1px)
+    }
+
+    .btn.secondary {
+      background: #fff;
+      color: #344054;
+      border: 1px solid var(--line-cool)
+    }
+
+    .btn.secondary:hover {
+      background: #f8fafc
+    }
+
+    .btn.danger {
+      background: var(--danger)
+    }
+
+    .btn.gold {
+      background: var(--gold)
+    }
+
+    .btn.small {
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px
+    }
+
+    .btn.full {
+      width: 100%;
+      margin-top: 12px
+    }
+
+    .upload-zone {
+      border: 1.5px dashed rgba(31, 77, 122, .26);
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      background: rgba(255, 255, 255, .72);
+      transition: .18s ease;
+      margin: 0 0 14px;
+      cursor: pointer;
+    }
+
+    .upload-zone:hover {
+      border-color: rgba(31, 77, 122, .48);
+      box-shadow: var(--shadow-soft);
+      transform: translateY(-1px)
+    }
+
+    .upload-zone strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 5px;
+      color: var(--ink)
+    }
+
+    .upload-zone p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45
+    }
+
+    .upload-btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-weight: 900;
+      background: var(--blue);
+      color: #fff;
+      white-space: nowrap
+    }
+
+    .promptbar {
+      margin: 0 24px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 58px 94px;
+      gap: 12px;
+      align-items: end;
+      flex: 0 0 auto
+    }
+
+    .prompt-textarea {
+      min-height: 92px;
+      max-height: 180px;
+      border: 1px solid var(--line-cool);
+      border-radius: 10px;
+      background: #fff;
+      padding: 17px 18px;
+      color: #344054;
+      font-size: 15px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      box-shadow: 0 8px 20px rgba(17, 35, 70, .05)
+    }
+
+    .prompt-textarea.tall {
+      width: 100%;
+      min-height: 220px;
+      max-height: 420px
+    }
+
+    .prompt-textarea:focus, input:focus, select:focus {
+      border-color: rgba(31, 77, 122, .45);
+      box-shadow: 0 0 0 4px rgba(31, 77, 122, .08);
+      outline: none
+    }
+
+    .voice {
+      width: 58px;
+      height: 58px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--red);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 14px 30px rgba(186, 36, 51, .18);
+      transition: .18s ease
+    }
+
+    .voice:hover {
+      transform: translateY(-1px);
+      filter: brightness(.98)
+    }
+
+    .voice svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor
+    }
+
+    .voice.recording {
+      background: #8f1d28;
+      animation: pulse 1.1s infinite
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(186, 36, 51, .28)
+      }
+      50% {
+        box-shadow: 0 0 0 10px rgba(186, 36, 51, 0)
+      }
+    }
+
+    .send-btn {
+      height: 58px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 900;
+      box-shadow: 0 14px 30px rgba(31, 77, 122, .18)
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 170px 120px;
+      gap: 10px;
+      margin-bottom: 14px
+    }
+
+    input, select {
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fff;
+      color: #344054;
+      min-width: 0
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 9px;
+      font-size: 13px
+    }
+
+    .data-table th {
+      text-align: left;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: 0 12px
+    }
+
+    .data-table td {
+      background: #fff;
+      border-top: 1px solid var(--line-cool);
+      border-bottom: 1px solid var(--line-cool);
+      padding: 12px
+    }
+
+    .data-table td:first-child {
+      border-left: 1px solid var(--line-cool);
+      border-radius: 8px 0 0 8px
+    }
+
+    .data-table td:last-child {
+      border-right: 1px solid var(--line-cool);
+      border-radius: 0 8px 8px 0
+    }
+
+    .badge {
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900
+    }
+
+    .badge-success {
+      background: #eaf4ef;
+      color: #166a47
+    }
+
+    .badge-warning {
+      background: #fff7e6;
+      color: #8a5a13
+    }
+
+    .badge-danger {
+      background: #fff0f1;
+      color: var(--red)
+    }
+
+    .response-head {
+      padding: 24px;
+      border-bottom: 1px solid var(--line-cool);
+      flex: 0 0 auto
+    }
+
+    .response-head small {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em
+    }
+
+    .response-head h3 {
+      margin: 6px 0 0;
+      font-size: 25px;
+      letter-spacing: 0;
+      line-height: 1.1
+    }
+
+    .response-body {
+      padding: 24px;
+      overflow: auto;
+      flex: 1;
+      min-height: 0
+    }
+
+    .answer-card {
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 14px;
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(17, 35, 70, .035)
+    }
+
+    .answer-card b {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px
+    }
+
+    .answer-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px
+    }
+
+    .answer-card pre {
+      white-space: pre-wrap;
+      overflow: auto;
+      background: #f8fafc;
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      padding: 12px
+    }
+
+    .answer-card.highlight {
+      border-color: rgba(184, 149, 86, .35);
+      background: #fffdf8
+    }
+
+    .chat-bubble {
+      max-width: min(94%, 820px);
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      overflow-wrap: anywhere
+    }
+
+    .chat-bubble-user {
+      background: #f0f4ff;
+      align-self: flex-end;
+      border: 1px solid rgba(31, 77, 122, .14);
+      color: #23334c
+    }
+
+    .chat-bubble-agent {
+      background: #fff;
+      border: 1px solid var(--line-cool);
+      color: #344054;
+      box-shadow: 0 8px 20px rgba(17, 35, 70, .04);
+      align-self: flex-start
+    }
+
+    .response-body.chat {
+      display: flex;
+      flex-direction: column
+    }
+
+    .response-body.history {
+      display: grid;
+      align-content: start;
+      gap: 10px
+    }
+
+    .result-stage {
+      min-height: 360px;
+      border: 1px solid var(--line-cool);
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 14px;
+      display: block;
+      overflow: auto
+    }
+
+    .result-empty {
+      height: 100%;
+      min-height: 320px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line-cool);
+      border-radius: 8px;
+      padding: 22px
+    }
+
+    .result-empty b {
+      display: block;
+      color: var(--ink);
+      font-size: 20px;
+      margin-bottom: 8px
+    }
+
+    .result-empty span {
+      max-width: 520px;
+      line-height: 1.5
+    }
+
+    .result-headline {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line-cool);
+      padding-bottom: 14px
+    }
+
+    .result-headline h3 {
+      margin: 4px 0 6px;
+      font-size: 24px;
+      letter-spacing: 0
+    }
+
+    .result-headline p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45
+    }
+
+    .result-source {
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--blue)
+    }
+
+    .result-metrics {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 2px 8px;
+      align-items: baseline;
+      background: #f8fafc;
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      padding: 10px 12px;
+      min-width: 118px
+    }
+
+    .result-metrics strong {
+      text-align: right
+    }
+
+    .result-metrics span {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 900
+    }
+
+    .result-table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line-cool);
+      border-radius: 8px
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 760px
+    }
+
+    .result-table th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      color: #344054;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 11px;
+      border-bottom: 1px solid var(--line-cool);
+      z-index: 1
+    }
+
+    .result-table td {
+      padding: 11px;
+      border-bottom: 1px solid var(--line-cool);
+      vertical-align: top;
+      color: #344054
+    }
+
+    .result-table tr:last-child td {
+      border-bottom: 0
+    }
+
+    .result-answer {
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      background: #fff;
+      padding: 18px;
+      color: #344054;
+      line-height: 1.6;
+      font-size: 15px
+    }
+
+    .result-answer > :first-child {
+      margin-top: 0
+    }
+
+    .result-answer > :last-child {
+      margin-bottom: 0
+    }
+
+    .result-list {
+      margin: 0;
+      padding: 16px 18px 16px 34px;
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      background: #fff;
+      color: #344054;
+      line-height: 1.55
+    }
+
+    .result-list li {
+      margin: 8px 0
+    }
+
+    .result-notice {
+      border: 1px solid var(--line-cool);
+      background: #fff;
+      border-radius: 8px;
+      padding: 18px
+    }
+
+    .result-notice b {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 6px
+    }
+
+    .result-notice p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45
+    }
+
+    .result-notice.warning, .result-notice.loading {
+      background: #fffaf0;
+      border-color: #f1d49a
+    }
+
+    .result-notice.danger {
+      background: #fff0f1;
+      border-color: #f0b5bd
+    }
+
+    .agent-run-box {
+      display: grid;
+      gap: 14px
+    }
+
+    .agent-run-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 14px
+    }
+
+    .agent-run-header h3 {
+      margin: 4px 0 6px;
+      font-size: 21px;
+      letter-spacing: 0
+    }
+
+    .agent-run-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      overflow-wrap: anywhere
+    }
+
+    .agent-live-result {
+      display: grid;
+      gap: 12px
+    }
+
+    .agent-trace-panel {
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      background: #fff;
+      padding: 14px
+    }
+
+    .agent-trace-events {
+      display: grid;
+      gap: 10px;
+      max-height: 360px;
+      overflow: auto
+    }
+
+    .agent-trace-event {
+      border-left: 4px solid var(--line-cool);
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 12px
+    }
+
+    .agent-trace-event.model {
+      border-left-color: var(--purple)
+    }
+
+    .agent-trace-event.tool {
+      border-left-color: var(--teal)
+    }
+
+    .agent-trace-event.response {
+      border-left-color: var(--success)
+    }
+
+    .agent-trace-event.error {
+      border-left-color: var(--danger)
+    }
+
+    .agent-trace-event.warning {
+      border-left-color: var(--warning)
+    }
+
+    .trace-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .trace-row-head strong {
+      font-size: 13px;
+      color: #344054
+    }
+
+    .trace-type {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 900;
+      color: var(--muted);
+      letter-spacing: .08em
+    }
+
+    .agent-trace-event p {
+      margin: 7px 0;
+      color: #344054;
+      font-size: 13px;
+      line-height: 1.4
+    }
+
+    .agent-trace-event pre {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow: auto;
+      background: #fff;
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 11px;
+      color: #475467
+    }
+
+    .history-item {
+      border: 1px solid var(--line-cool);
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px
+    }
+
+    .history-item b {
+      display: block;
+      font-size: 12px;
+      color: #344054;
+      text-transform: uppercase;
+      margin-bottom: 5px
+    }
+
+    .history-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4
+    }
+
+    .mini-dashboard {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+      margin-bottom: 14px
+    }
+
+    .ocr-preview {
+      height: 180px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f8fafc, #f2f4f8);
+      border: 1px dashed var(--line-cool);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 900;
+      text-align: center;
+      padding: 18px
+    }
+
+    .audio-panel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto minmax(150px, 220px);
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px
+    }
+
+    .audio-copy {
+      min-width: 0
+    }
+
+    .audio-panel input[type=file] {
+      width: 100%
+    }
+
+    .voice-meter {
+      height: 18px;
+      display: flex;
+      gap: 4px;
+      align-items: end;
+      margin-top: 8px;
+      opacity: .55
+    }
+
+    .voice-meter span {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--teal);
+      display: block
+    }
+
+    .voice-meter.active span {
+      animation: voice-bar .7s ease-in-out infinite
+    }
+
+    .voice-meter.active span:nth-child(2) {
+      animation-delay: .1s
+    }
+
+    .voice-meter.active span:nth-child(3) {
+      animation-delay: .2s
+    }
+
+    .voice-meter.active span:nth-child(4) {
+      animation-delay: .3s
+    }
+
+    @keyframes voice-bar {
+      0%, 100% {
+        height: 5px
+      }
+      50% {
+        height: 18px
+      }
+    }
+
+    .markdown-body {
+      color: #344054;
+      line-height: 1.55;
+      font-size: 14px
+    }
+
+    .markdown-body > :first-child {
+      margin-top: 0
+    }
+
+    .markdown-body > :last-child {
+      margin-bottom: 0
+    }
+
+    .markdown-body code {
+      background: #f2f4f7;
+      border: 1px solid var(--line-cool);
+      border-radius: 6px;
+      padding: 1px 4px
+    }
+
+    .mermaid-block {
+      overflow: auto;
+      background: #fff;
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px
+    }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 14px
+    }
+
+    .report-section {
+      border: 1px solid var(--line-cool);
+      border-radius: 8px;
+      padding: 12px;
+      background: #f8fafc
+    }
+
+    .report-section span {
+      display: block;
+      font-size: 12px;
+      font-weight: 900;
+      color: #344054;
+      margin-bottom: 6px
+    }
+
+    .report-section ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 0 12px
+    }
+
+    .section-title.spaced {
+      margin-top: 18px
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 0
+    }
+
+    .section-title span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 14px;
+      border: 1px dashed var(--line-cool);
+      border-radius: 8px;
+      background: #fff
+    }
+
+    @media (max-width: 1180px) {
+      .shell {
+        height: auto
+      }
+      .app {
+        grid-template-columns: 1fr
+      }
+      .response {
+        min-height: 560px
+      }
+      .topbar {
+        height: auto;
+        align-items: flex-start;
+        flex-wrap: wrap
+      }
+      .owner-chip {
+        margin-left: auto
+      }
+      .nav {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 3px
+      }
+    }
+
+    @media (max-width: 860px) {
+      .audio-panel {
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start
+      }
+      .audio-panel .tag, .audio-panel input[type=file] {
+        grid-column: 1 / -1
+      }
+      .filters {
+        grid-template-columns: 1fr
+      }
+      .data-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap
+      }
+    }
+
+    @media (max-width: 780px) {
+      .page {
+        padding: 12px
+      }
+      .brand {
+        min-width: 0
+      }
+      .brand h1 {
+        font-size: 18px
+      }
+      .app-header, .upload-zone, .result-headline, .agent-run-header {
+        flex-direction: column;
+        align-items: stretch
+      }
+      .grid-2, .mini-dashboard {
+        grid-template-columns: 1fr
+      }
+      .promptbar {
+        grid-template-columns: 1fr 58px;
+        align-items: stretch
+      }
+      .send-btn {
+        grid-column: 1 / -1
+      }
+      .nav-tab {
+        padding: 9px 10px
+      }
+      .owner-chip {
+        width: 100%;
+        justify-content: flex-start
+      }
+      .row-item {
+        flex-direction: column;
+        align-items: flex-start
+      }
+      .row-actions {
+        justify-content: flex-start
+      }
+      .response-head, .response-body, .app-header, .canvas {
+        padding: 16px
+      }
+      .canvas, .promptbar {
+        margin-left: 12px;
+        margin-right: 12px
+      }
+      .chat-bubble {
+        max-width: 100%
+      }
+      .result-stage {
+        min-height: 300px;
+        padding: 12px
+      }
+      .result-empty {
+        min-height: 240px
+      }
+      .result-metrics {
+        grid-template-columns: 1fr 1fr
+      }
+      .agent-trace-events {
+        max-height: 300px
+      }
+    }
+    
+    /* Mock badge alert style */
+    .mock-badge {
+      display: inline-block;
+      background: #344054;
+      color: #fff;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: bold;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">CT</div>
+          <div>
+            <small>Cartao de Todos <span class="mock-badge">MOCK</span></small>
+            <h1>Assistente Operacional</h1>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Navegacao principal">
+          <button class="nav-tab active" data-tab="dashboard">Dashboard IA</button>
+          <button class="nav-tab" data-tab="reunioes">Reunioes</button>
+          <button class="nav-tab" data-tab="banco">Banco de Dados</button>
+          <button class="nav-tab" data-tab="contas">Contas OCR</button>
+          <button class="nav-tab" data-tab="conversa">Entrega</button>
+        </nav>
+        <div class="owner-chip"><span class="owner-avatar">D</span>Uso pessoal da presidencia</div>
+      </header>
+
+      <div class="model-strip">
+        <span id="model-status-dot" class="dot"></span>
+        <span id="model-status-text">LM Studio conectado (MOCK)</span>
+        <strong>Política de modelos:</strong>
+        <span id="selected-model">worker Qwen2.5-7B-Instruct - quality Qwen2.5-14B-Instruct - balanced Qwen2.5-7B-Instruct</span>
+        <span class="soft-separator"></span>
+        <span id="stt-status-text">STT: disponivel</span>
+        <span id="ocr-status-text">OCR: disponivel</span>
+      </div>
+
+      <div class="app">
+        <section class="work">
+          <div id="left-dashboard" class="tab-pane active">
+            <div class="app-header">
+              <div class="app-title">
+                <h2>Dashboard do projeto <span class="tag gold">Modo Simulação</span></h2>
+                <span>Dados de demonstração do estoque, relatórios, histórico, status de IA, STT e OCR.</span>
+              </div>
+              <button class="btn secondary" id="refresh-dashboard">Atualizar</button>
+            </div>
+            <div class="canvas">
+              <div class="grid-4" id="dashboard-kpis"></div>
+              <div class="mini-dashboard">
+                <div class="card soft">
+                  <div class="card-head"><h3>Rotinas rápidas</h3><span class="tag green">Simulado</span></div>
+                  <div class="dashboard-list">
+                    <div class="row-item">
+                      <div><b>Checagem determinística de estoque</b><span>Executa as regras de estoque sem depender do modelo.</span></div>
+                      <button class="btn small" data-run-report="stock_check">Executar</button>
+                    </div>
+                    <div class="row-item">
+                      <div><b>Revisão diária por IA</b><span>Usa LM Studio quando disponível; caso contrário retorna status claro.</span></div>
+                      <button class="btn small secondary" data-run-ai-report="daily_inventory_review">Rodar IA</button>
+                    </div>
+                    <div class="row-item">
+                      <div><b>Itens com menor estoque</b><span>Consulta controlada no SQLite.</span></div>
+                      <button class="btn small secondary" data-quick-search="itens com menor estoque">Ver</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-head"><h3>Saúde das integrações</h3><span class="tag green" id="integration-tag">Online</span></div>
+                  <div id="integration-status" class="status-list"></div>
+                </div>
+              </div>
+              <div class="section-title"><h3>Últimas execuções</h3><span>QA runs e logs recentes</span></div>
+              <div class="task-list" id="recent-runs"></div>
+              <div class="section-title spaced"><h3>Logs e steps observáveis</h3><span>Sem chain-of-thought</span></div>
+              <div class="task-list" id="recent-logs"></div>
+            </div>
+          </div>
+
+          <div id="left-reunioes" class="tab-pane">
+            <div class="app-header">
+              <div class="app-title">
+                <h2>Resumo de reuniões <span class="tag gold">Modo Simulação</span></h2>
+                <span>Envie uma transcrição ou pauta. Se o modelo local estiver fora, o registro fica pendente.</span>
+              </div>
+              <button class="btn" id="summarize-meeting">Resumir</button>
+            </div>
+            <div class="canvas">
+              <label class="upload-zone" id="meeting-upload-zone">
+                <div><strong>Simular Envio de transcrição ou pauta (.txt / .md)</strong><p>Clique aqui para simular a seleção de um arquivo de pauta de teste.</p></div>
+                <span class="upload-btn">Carregar Pauta Exemplo</span>
+              </label>
+              <textarea class="prompt-textarea tall" id="meeting-text" placeholder="Cole aqui a transcrição, pauta ou anotações da reunião."></textarea>
+              <div class="meeting-list" id="meeting-results"></div>
+            </div>
+          </div>
+
+          <div id="left-banco" class="tab-pane">
+            <div class="app-header">
+              <div class="app-title">
+                <h2>Busca no banco de dados <span class="tag gold">Modo Simulação</span></h2>
+                <span>Consulta direta em produtos, alertas, fornecedores e relatórios, independente do agente.</span>
+              </div>
+              <button class="btn secondary" id="reload-search">Consultar</button>
+            </div>
+            <div class="canvas">
+              <div class="filters">
+                <input id="db-search" placeholder="Buscar produto, SKU, fornecedor ou relatorio">
+                <select id="db-scope">
+                  <option value="estoque">Estoque</option>
+                  <option value="baixo_estoque">Menor estoque</option>
+                  <option value="vencimentos">Vencimentos</option>
+                  <option value="consumo">Consumo anormal</option>
+                  <option value="fornecedores">Fornecedores</option>
+                  <option value="relatorios">Relatórios</option>
+                </select>
+                <button class="btn" id="run-search">Buscar</button>
+              </div>
+              <table class="data-table">
+                <thead><tr><th>Item</th><th>Tipo</th><th>Indicador</th><th>Status</th></tr></thead>
+                <tbody id="inventory-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="left-contas" class="tab-pane">
+            <div class="app-header">
+              <div class="app-title">
+                <h2>Contas e OCR <span class="tag gold">Modo Simulação</span></h2>
+                <span>Upload de documento. OCR usa o modelo local simulado para extrair campos de notas/boletos.</span>
+              </div>
+              <button class="btn secondary" id="reload-documents">Recarregar</button>
+            </div>
+            <div class="canvas">
+              <div class="grid-2">
+                <div>
+                  <label class="upload-zone" id="bill-upload-zone">
+                    <div><strong>Simular envio de nota ou boleto</strong><p>Clique aqui para simular o upload de uma fatura médica.</p></div>
+                    <span class="upload-btn">Enviar Fatura Exemplo</span>
+                  </label>
+                  <div class="ocr-preview" id="ocr-preview">Nenhum documento enviado</div>
+                </div>
+                <div class="card soft">
+                  <h3>Dados extraídos</h3>
+                  <input type="hidden" id="ocr-file-path">
+                  <label>Fornecedor<input id="ocr-supplier" placeholder="Fornecedor"></label>
+                  <label>Data<input id="ocr-date" placeholder="YYYY-MM-DD"></label>
+                  <label>Valor<input id="ocr-amount" placeholder="0,00"></label>
+                  <label>Vencimento<input id="ocr-due-date" placeholder="YYYY-MM-DD"></label>
+                  <label>Categoria<input id="ocr-category" placeholder="Categoria"></label>
+                  <label>Descrição<input id="ocr-description" placeholder="Descrição"></label>
+                  <label>Observações<input id="ocr-notes" placeholder="Observações"></label>
+                  <button class="btn full" id="save-document">Salvar na base simples</button>
+                </div>
+              </div>
+              <div class="section-title spaced"><h3>Contas salvas</h3><span>Arquivo estruturado local simulado</span></div>
+              <div class="account-list" id="account-list"></div>
+            </div>
+          </div>
+
+          <div id="left-conversa" class="tab-pane">
+            <div class="app-header">
+              <div class="app-title">
+                <h2>Entrega operacional <span class="tag gold">Modo Simulação</span></h2>
+                <span>A IA interpreta o pedido, usa o contexto operacional simulado e entrega o resultado no formato adequado.</span>
+              </div>
+              <div class="status"><i class="dot" id="agent-status-led"></i><span id="agent-status-text">Ocioso</span></div>
+            </div>
+            <div class="canvas">
+              <section class="result-stage" id="agent-result-stage">
+                <div class="result-empty">
+                  <b>Resultado pronto para entrega</b>
+                  <span>Use o campo de pedido abaixo. A IA entrega resposta, tabela, lista ou relatório conforme o serviço solicitado.</span>
+                </div>
+              </section>
+              <div class="audio-panel">
+                <button class="voice" id="mic-btn-panel" title="Gravar áudio">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 1 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2h-3v-3.1A5 5 0 0 0 17 11Z"/></svg>
+                </button>
+                <div class="audio-copy">
+                  <b>STT - comando por voz</b>
+                  <p class="muted" id="voice-hint">Clique no botão de voz para simular o ditado de um pedido operacional por voz.</p>
+                  <div class="voice-meter" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                </div>
+                <span class="tag green" id="voice-mode">Nativo do navegador (Simulado)</span>
+              </div>
+              <div class="grid-3">
+                <button class="btn secondary" data-suggestion="Liste os itens com menor estoque.">Itens com menor estoque</button>
+                <button class="btn secondary" data-suggestion="Liste os fornecedores com problemas de contato.">Fornecedores incompletos</button>
+                <button class="btn secondary" data-suggestion="Busque todos os itens no banco que começam com a letra a.">Buscar produtos com 'A'</button>
+              </div>
+            </div>
+            <div class="promptbar">
+              <textarea class="prompt-textarea" id="main-prompt" placeholder="Digite ou fale uma requisição (ex: 'quantos algodões tem', 'itens com a letra a', 'estoque baixo')."></textarea>
+              <button class="voice" id="mic-btn" title="Gravar áudio">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 1 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2h-3v-3.1A5 5 0 0 0 17 11Z"/></svg>
+              </button>
+              <button class="send-btn" id="send-request">Enviar</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="response">
+          <div id="right-dashboard" class="tab-pane active">
+            <div class="response-head"><small>Resposta operacional</small><h3>Visão do projeto</h3></div>
+            <div class="response-body" id="right-dashboard-body"></div>
+          </div>
+          <div id="right-reunioes" class="tab-pane">
+            <div class="response-head"><small>Resumo lateral</small><h3>Resumo de reunião</h3></div>
+            <div class="response-body" id="right-reunioes-body"></div>
+          </div>
+          <div id="right-banco" class="tab-pane">
+            <div class="response-head"><small>Consulta operacional</small><h3>Resultado do banco</h3></div>
+            <div class="response-body" id="right-banco-body"></div>
+          </div>
+          <div id="right-contas" class="tab-pane">
+            <div class="response-head"><small>OCR e armazenamento</small><h3>Conta extraída</h3></div>
+            <div class="response-body" id="right-contas-body"></div>
+          </div>
+          <div id="right-conversa" class="tab-pane">
+            <div class="response-head"><small>Histórico</small><h3>Pedidos recentes</h3></div>
+            <div class="response-body history" id="request-history">
+              <div class="empty">Nenhum pedido executado nesta sessão.</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // SIMULATED DATABASE SEED DATA
+    const MOCK_PRODUCTS = [
+      { id: 1, sku: "LUVA-NIT-P", name: "Luva nitrílica P", category: "luvas", unit: "caixa", current_stock: 42, minimum_stock: 30, ideal_stock: 90, average_unit_cost: 32.90, supplier_id: 1, criticality: "medium", expiration_date: "2026-10-10", status: "normal" },
+      { id: 2, sku: "LUVA-NIT-M", name: "Luva nitrílica M", category: "luvas", unit: "caixa", current_stock: 8, minimum_stock: 30, ideal_stock: 100, average_unit_cost: 34.50, supplier_id: 1, criticality: "high", expiration_date: "2026-10-10", status: "low_stock" },
+      { id: 3, sku: "LUVA-NIT-G", name: "Luva nitrílica G", category: "luvas", unit: "caixa", current_stock: 55, minimum_stock: 25, ideal_stock: 80, average_unit_cost: 35.10, supplier_id: 1, criticality: "medium", expiration_date: "2026-10-10", status: "normal" },
+      { id: 4, sku: "MASC-CIR-TRI", name: "Máscara cirúrgica tripla", category: "máscaras", unit: "caixa", current_stock: 120, minimum_stock: 80, ideal_stock: 220, average_unit_cost: 18.90, supplier_id: 1, criticality: "high", expiration_date: "2026-09-10", status: "normal" },
+      { id: 5, sku: "MASC-N95", name: "Máscara N95", category: "máscaras", unit: "unidade", current_stock: 18, minimum_stock: 20, ideal_stock: 60, average_unit_cost: 4.80, supplier_id: 1, criticality: "high", expiration_date: "2027-06-10", status: "low_stock" },
+      { id: 6, sku: "ALC-70-1L", name: "Álcool 70%", category: "limpeza", unit: "frasco", current_stock: 14, minimum_stock: 20, ideal_stock: 60, average_unit_cost: 9.40, supplier_id: 3, criticality: "high", expiration_date: "2026-07-01", status: "low_stock" },
+      { id: 7, sku: "SER-5ML", name: "Seringa descartável 5ml", category: "descartáveis", unit: "unidade", current_stock: 300, minimum_stock: 120, ideal_stock: 500, average_unit_cost: 0.48, supplier_id: 1, criticality: "medium", expiration_date: "2027-11-10", status: "normal" },
+      { id: 8, sku: "SER-10ML", name: "Seringa descartável 10ml", category: "descartáveis", unit: "unidade", current_stock: 90, minimum_stock: 100, ideal_stock: 350, average_unit_cost: 0.62, supplier_id: 1, criticality: "medium", expiration_date: "2027-11-10", status: "low_stock" },
+      { id: 9, sku: "GAZE-EST", name: "Gaze estéril", category: "descartáveis", unit: "pacote", current_stock: 70, minimum_stock: 45, ideal_stock: 140, average_unit_cost: 6.70, supplier_id: 1, criticality: "medium", expiration_date: "2026-09-10", status: "normal" },
+      { id: 10, sku: "ESPAR-10", name: "Esparadrapo", category: "descartáveis", unit: "rolo", current_stock: 22, minimum_stock: 12, ideal_stock: 35, average_unit_cost: 5.90, supplier_id: 1, criticality: "low", expiration_date: "2027-07-10", status: "normal" },
+      { id: 11, sku: "PAP-GRAU", name: "Papel grau cirúrgico", category: "descartáveis", unit: "rolo", current_stock: 7, minimum_stock: 15, ideal_stock: 45, average_unit_cost: 49.90, supplier_id: 1, criticality: "high", expiration_date: "2027-06-10", status: "low_stock" },
+      { id: 12, sku: "TOUCA-DESC", name: "Touca descartável", category: "descartáveis", unit: "pacote", current_stock: 88, minimum_stock: 40, ideal_stock: 130, average_unit_cost: 11.20, supplier_id: 1, criticality: "low", expiration_date: "2027-06-10", status: "normal" },
+      { id: 13, sku: "LENCOL-DESC", name: "Lençol descartável", category: "descartáveis", unit: "rolo", current_stock: 16, minimum_stock: 10, ideal_stock: 30, average_unit_cost: 38.50, supplier_id: 1, criticality: "medium", expiration_date: "2027-06-10", status: "normal" },
+      { id: 14, sku: "SORO-500", name: "Soro fisiológico 500ml", category: "medicamentos", unit: "frasco", current_stock: 5, minimum_stock: 25, ideal_stock: 80, average_unit_cost: 7.90, supplier_id: 2, criticality: "high", expiration_date: "2026-06-30", status: "low_stock" },
+      { id: 15, sku: "DIPI-GOTAS", name: "Dipirona gotas", category: "medicamentos", unit: "frasco", current_stock: 9, minimum_stock: 8, ideal_stock: 20, average_unit_cost: 6.40, supplier_id: 2, criticality: "medium", expiration_date: "2026-06-20", status: "normal" },
+      { id: 16, sku: "ATAD-CREPE", name: "Atadura crepe", category: "descartáveis", unit: "unidade", current_stock: 64, minimum_stock: 25, ideal_stock: 90, average_unit_cost: 2.80, supplier_id: 1, criticality: "medium", expiration_date: "2028-06-10", status: "normal" },
+      { id: 17, sku: "COLET-PERF", name: "Coletor perfurocortante", category: "descartáveis", unit: "unidade", current_stock: 3, minimum_stock: 8, ideal_stock: 20, average_unit_cost: 12.70, supplier_id: 1, criticality: "high", expiration_date: "2028-06-01", status: "low_stock" },
+      { id: 18, sku: "PAP-TOALHA", name: "Papel toalha", category: "limpeza", unit: "fardo", current_stock: 11, minimum_stock: 10, ideal_stock: 25, average_unit_cost: 21.30, supplier_id: 3, criticality: "low", expiration_date: null, status: "normal" },
+      { id: 19, sku: "SAB-ANTI", name: "Sabonete antisséptico", category: "limpeza", unit: "frasco", current_stock: 6, minimum_stock: 12, ideal_stock: 36, average_unit_cost: 14.80, supplier_id: 3, criticality: "medium", expiration_date: "2026-10-10", status: "low_stock" },
+      { id: 20, sku: "ALG-ROLO", name: "Algodão rolo", category: "descartáveis", unit: "rolo", current_stock: 24, minimum_stock: 15, ideal_stock: 45, average_unit_cost: 8.20, supplier_id: 1, criticality: "medium", expiration_date: "2027-06-10", status: "normal" },
+      { id: 21, sku: "ABAIX-LING", name: "Abaixador de língua", category: "descartáveis", unit: "pacote", current_stock: 45, minimum_stock: 20, ideal_stock: 60, average_unit_cost: 7.50, supplier_id: 1, criticality: "low", expiration_date: "2027-06-10", status: "normal" },
+      { id: 22, sku: "TERM-DIG", name: "Termômetro digital", category: "equipamentos pequenos", unit: "unidade", current_stock: 4, minimum_stock: 2, ideal_stock: 6, average_unit_cost: 28.00, supplier_id: 5, criticality: "medium", expiration_date: null, status: "normal" },
+      { id: 23, sku: "PILHA-AA", name: "Pilha AA", category: "equipamentos pequenos", unit: "cartela", current_stock: 10, minimum_stock: 6, ideal_stock: 18, average_unit_cost: 13.20, supplier_id: 5, criticality: "low", expiration_date: "2027-12-10", status: "normal" },
+      { id: 24, sku: "CANETA-AZ", name: "Caneta azul", category: "escritório", unit: "unidade", current_stock: 18, minimum_stock: 10, ideal_stock: 30, average_unit_cost: 1.90, supplier_id: 4, criticality: "low", expiration_date: null, status: "normal" },
+      { id: 25, sku: "ETIQ-ADES", name: "Etiqueta adesiva", category: "escritório", unit: "rolo", current_stock: 2, minimum_stock: 5, ideal_stock: 15, average_unit_cost: 15.40, supplier_id: 4, criticality: "low", expiration_date: null, status: "low_stock" }
+    ];
+
+    const MOCK_SUPPLIERS = [
+      { id: 1, name: "MedSupply Distribuidora", contact_name: "Carla Nogueira", email: "carla@medsupply.example", phone: "(11) 4002-1001", default_lead_time_days: 4, notes: "Fornecedor principal de descartáveis." },
+      { id: 2, name: "Clin Farma Hospitalar", contact_name: "Rafael Lima", email: "rafael@clinfarm.example", phone: "(21) 3003-2200", default_lead_time_days: 6, notes: "Medicamentos e soluções." },
+      { id: 3, name: "Higieniza Pro", contact_name: "Marina Costa", email: "pedidos@higienizapro.example", phone: "(31) 3555-0101", default_lead_time_days: 5, notes: "Produtos de limpeza e antissepsia." },
+      { id: 4, name: "Office Care Suprimentos", contact_name: "João Martins", email: null, phone: "(41) 3222-9090", default_lead_time_days: 8, notes: "Contato incompleto proposital." },
+      { id: 5, name: "DentalMed Equipamentos", contact_name: "Patrícia Rocha", email: "patricia@dentalmed.example", phone: "(51) 3777-8080", default_lead_time_days: 10, notes: "Equipamentos pequenos e reposições." }
+    ];
+
+    const MOCK_ALERTS = [
+      { id: 1, product_id: 2, alert_type: "low_stock", severity: "high", title: "Estoque crítico de Luva nitrílica M", description: "Estoque atual (8) está muito abaixo do mínimo exigido (30).", created_at: new Date().toISOString() },
+      { id: 2, product_id: 14, alert_type: "low_stock", severity: "high", title: "Estoque crítico de Soro fisiológico 500ml", description: "Estoque atual (5) está abaixo do mínimo (25).", created_at: new Date().toISOString() },
+      { id: 3, product_id: 6, alert_type: "low_stock", severity: "medium", title: "Estoque baixo de Álcool 70%", description: "Estoque atual (14) abaixo do mínimo (20).", created_at: new Date(Date.now() - 3600000).toISOString() },
+      { id: 4, product_id: 4, alert_type: "abnormal_consumption", severity: "high", title: "Consumo anormal de Máscara cirúrgica tripla", description: "Saída de 34 unidades no dia anterior representa 4.25x a média histórica diária de 8 unidades.", created_at: new Date(Date.now() - 7200000).toISOString() }
+    ];
+
+    const MOCK_RUNS = [
+      { run_id: "run-e289bf4a", status: "completed", model: "Qwen2.5-7B-Instruct", duration_ms: 1245 },
+      { run_id: "run-90f71120", status: "completed", model: "Qwen2.5-7B-Instruct", duration_ms: 2451 },
+      { run_id: "run-44b7d12f", status: "failed", model: "Qwen2.5-7B-Instruct", duration_ms: 41203 }
+    ];
+
+    const MOCK_LOGS = [
+      { message: "Fuzzy search executed matching term 'luva'", created_at: new Date(Date.now() - 60000).toLocaleTimeString() },
+      { message: "Tool 'fuzzy_search_inventory_tool' resolved 3 products matching 'a'", created_at: new Date(Date.now() - 120000).toLocaleTimeString() },
+      { message: "Agent request execution started: 'Liste os itens com menor estoque.'", created_at: new Date(Date.now() - 180000).toLocaleTimeString() }
+    ];
+
+    const MOCK_DOCUMENTS = [
+      { id: "doc-20260613-1102-a4f6", created_at: "2026-06-13T11:02:15Z", supplier_name: "MedSupply Distribuidora", date: "2026-06-12", amount: "1.250,00", due_date: "2026-06-30", description: "Lote de luvas descartáveis P/M", category: "descartáveis", notes: "Recebido no almoxarifado", status: "saved_for_review" },
+      { id: "doc-20260610-0914-9b2e", created_at: "2026-06-10T09:14:02Z", supplier_name: "Higieniza Pro", date: "2026-06-09", amount: "420,00", due_date: "2026-06-25", description: "Álcool em gel e desinfetante", category: "limpeza", notes: "Aprovado pelo financeiro", status: "saved_for_review" }
+    ];
+
+    const MOCK_MEETINGS = [
+      { id: "meeting-20260612-1600-01a2", created_at: "2026-06-12T16:00:00Z", status: "completed", summary: "Alinhamento do estoque de EPIs devido ao aumento de consultas na clínica.", decisions: ["Aumento temporário do estoque mínimo de máscaras e luvas M.", "Contatos pendentes do fornecedor Office Care devem ser resolvidos até terça."], next_actions: ["Ana Paula atualizar cadastro do fornecedor", "Rafael fazer cotação de soro fisiológico"] }
+    ];
+
+    // STATE CONTROLLER
+    const state = {
+      recording: false,
+      recordingTimer: null,
+      documents: [...MOCK_DOCUMENTS],
+      meetings: [...MOCK_MEETINGS],
+      runs: [...MOCK_RUNS],
+      logs: [...MOCK_LOGS],
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setupRichRendering();
+      bindTabs();
+      bindActions();
+      loadDashboard();
+      loadDocuments();
+      runSearch();
+    });
+
+    function bindTabs() {
+      $$(".nav-tab").forEach((button) => {
+        button.addEventListener("click", () => switchTab(button.dataset.tab));
+      });
+    }
+
+    function bindActions() {
+      $("#refresh-dashboard")?.addEventListener("click", loadDashboard);
+      $("#reload-search")?.addEventListener("click", runSearch);
+      $("#run-search")?.addEventListener("click", runSearch);
+      $("#db-search")?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") runSearch();
+      });
+      $("#reload-documents")?.addEventListener("click", loadDocuments);
+      $("#bill-upload-zone")?.addEventListener("click", handleOcrUpload);
+      $("#save-document")?.addEventListener("click", saveDocument);
+      $("#summarize-meeting")?.addEventListener("click", summarizeMeeting);
+      $("#meeting-upload-zone")?.addEventListener("click", loadMeetingExampleText);
+      $("#send-request")?.addEventListener("click", sendAgentRequest);
+      $("#mic-btn")?.addEventListener("click", toggleVoiceInput);
+      $("#mic-btn-panel")?.addEventListener("click", toggleVoiceInput);
+      
+      $$("[data-run-report]").forEach((button) => {
+        button.addEventListener("click", () => runReport(button.dataset.runReport, false));
+      });
+      $$("[data-run-ai-report]").forEach((button) => {
+        button.addEventListener("click", () => runReport(button.dataset.runAiReport, true));
+      });
+      $$("[data-quick-search]").forEach((button) => {
+        button.addEventListener("click", () => {
+          switchTab("banco");
+          $("#db-search").value = button.dataset.quickSearch || "";
+          $("#db-scope").value = "baixo_estoque";
+          runSearch();
+        });
+      });
+      $$("[data-suggestion]").forEach((button) => {
+        button.addEventListener("click", () => {
+          switchTab("conversa");
+          $("#main-prompt").value = button.dataset.suggestion || "";
+          $("#main-prompt").focus();
+        });
+      });
+    }
+
+    function switchTab(tabName) {
+      $$(".nav-tab").forEach((button) => button.classList.toggle("active", button.dataset.tab === tabName));
+      $$(".work .tab-pane").forEach((pane) => pane.classList.remove("active"));
+      $$(".response .tab-pane").forEach((pane) => pane.classList.remove("active"));
+      $(`#left-${tabName}`)?.classList.add("active");
+      $(`#right-${tabName}`)?.classList.add("active");
+    }
+
+    function loadDashboard() {
+      setRight("dashboard", card("Carregando", "Consultando dados reais simulados do projeto.", true));
+      setTimeout(() => {
+        renderDashboard();
+      }, 300);
+    }
+
+    function renderDashboard() {
+      const openAlertsCount = MOCK_ALERTS.length;
+      const lowStockCount = MOCK_PRODUCTS.filter(p => p.current_stock < p.minimum_stock).length;
+      const today = new Date();
+      const next30Days = new Date();
+      next30Days.setDate(today.getDate() + 30);
+      const expirationCount = MOCK_PRODUCTS.filter(p => p.expiration_date && new Date(p.expiration_date) >= today && new Date(p.expiration_date) <= next30Days).length;
+      
+      const supplierIssuesCount = MOCK_SUPPLIERS.filter(s => !s.email || !s.phone).length;
+      const pendingActions = 2; // Simulado
+
+      $("#dashboard-kpis").innerHTML = [
+        kpi(openAlertsCount, "Alertas abertos"),
+        kpi(lowStockCount, "Estoque baixo"),
+        kpi(expirationCount, "Vencimentos"),
+        kpi(pendingActions, "Ações pendentes"),
+      ].join("");
+
+      $("#integration-status").innerHTML = [
+        row("Modelo Local", "Disponível (Simulação)", tag("online", "green")),
+        row("STT", "Disponível (Browser API)", tag("online", "green")),
+        row("OCR", "Disponível (Simulado)", tag("online", "green"))
+      ].join("");
+
+      $("#recent-runs").innerHTML = state.runs.map((run) => row(
+        run.run_id || "Execução",
+        `${run.status || "sem status"} - modelo ${run.model || "-"} - ${run.duration_ms || 0}ms`,
+        tag(run.status || "run", run.status === "completed" ? "green" : "gold"),
+      )).join("");
+
+      $("#recent-logs").innerHTML = state.logs.map((log) => row(
+        log.message || "Log",
+        log.created_at || "",
+        tag("log", "purple"),
+      )).join("");
+
+      // Right column details
+      const lowStockList = MOCK_PRODUCTS.filter(p => p.current_stock < p.minimum_stock);
+      const expirationList = MOCK_PRODUCTS.filter(p => p.expiration_date && new Date(p.expiration_date) >= today && new Date(p.expiration_date) <= next30Days);
+      const supplierIssuesList = MOCK_SUPPLIERS.filter(s => !s.email || !s.phone);
+
+      setRight("dashboard", [
+        card("Resumo operacional", `Produtos: ${MOCK_PRODUCTS.length}. Alertas: ${openAlertsCount}. Relatórios: 1.`, true),
+        listCard("Estoque baixo", lowStockList, productSummary),
+        listCard("Vencimentos próximos", expirationList, productSummary),
+        listCard("Fornecedores incompletos", supplierIssuesList, supplierSummary),
+      ].join(""));
+    }
+
+    function runSearch() {
+      const query = ($("#db-search")?.value || "").trim().toLowerCase();
+      const scope = $("#db-scope")?.value || "estoque";
+      $("#inventory-table-body").innerHTML = tableLoading();
+
+      setTimeout(() => {
+        let results = [];
+        let intent = "estoque";
+
+        if (scope === "baixo_estoque" || query.includes("baixo") || query.includes("menor") || query.includes("falta")) {
+          results = MOCK_PRODUCTS.filter(p => p.current_stock < p.minimum_stock);
+          intent = "low_stock";
+        } else if (scope === "vencimentos" || query.includes("venc") || query.includes("validade") || query.includes("expira")) {
+          const today = new Date();
+          const next30Days = new Date();
+          next30Days.setDate(today.getDate() + 30);
+          results = MOCK_PRODUCTS.filter(p => p.expiration_date && new Date(p.expiration_date) >= today && new Date(p.expiration_date) <= next30Days);
+          intent = "expiration_risks";
+        } else if (scope === "consumo" || query.includes("consumo") || query.includes("anormal")) {
+          results = MOCK_ALERTS.filter(a => a.alert_type === "abnormal_consumption");
+          intent = "abnormal_consumption";
+        } else if (scope === "fornecedores" || query.includes("fornecedor") || query.includes("contato")) {
+          results = MOCK_SUPPLIERS.filter(s => !s.email || !s.phone);
+          intent = "supplier_issues";
+        } else if (scope === "relatorios" || query.includes("relatorio") || query.includes("relatório")) {
+          results = [{ title: "Revisão Diária 13/06", created_at: "2026-06-13", severity: "normal", status: "completed" }];
+          intent = "reports";
+        } else {
+          results = MOCK_PRODUCTS.filter(p => {
+            return p.name.toLowerCase().includes(query) || 
+                   p.sku.toLowerCase().includes(query) || 
+                   p.category.toLowerCase().includes(query);
+          });
+          intent = "free_product_search";
+        }
+
+        renderSearch(results, intent);
+      }, 200);
+    }
+
+    function renderSearch(results, intent) {
+      const columns = columnsForSearch(intent);
+      $("#inventory-table-body").innerHTML = results.map((item) => {
+        const title = item.name || item.title || item.name || "Item";
+        const type = item.sku ? "produto" : item.alert_type ? "alerta" : item.email !== undefined ? "fornecedor" : "relatório";
+        const indicator = item.sku
+          ? `${item.sku} - estoque ${item.current_stock ?? "-"} / mínimo ${item.minimum_stock ?? "-"}`
+          : item.description || item.created_at || item.email || item.title || "";
+        return `<tr><td>${escapeHtml(title)}</td><td>${escapeHtml(type)}</td><td>${escapeHtml(indicator)}</td><td>${badge(item.status || item.severity || intent)}</td></tr>`;
+      }).join("") || tableEmpty("Nenhum resultado encontrado.");
+
+      setRight("banco", [
+        renderDelivery({
+          status: "completed",
+          mode: "database",
+          source: "sqlite",
+          title: "Resultado do banco (Simulado)",
+          summary: `${results.length} item(ns) encontrados. Consulta simulada no SQLite.`,
+          visualization: { type: "table", columns, rows: results },
+          metadata: { intent, llm_calls: 0, duration_ms: 15 }
+        })
+      ].join(""));
+    }
+
+    function runReport(reportType, useAi) {
+      setRight("dashboard", card("Executando rotina", `${reportType}${useAi ? " com IA" : ""}.`, true));
+      setTimeout(() => {
+        const mockResult = {
+          status: "completed",
+          report_type: reportType,
+          final_report: {
+            executive_summary: "### Resumo da rotina\nA checagem foi finalizada com sucesso. Encontrados itens em estado de alerta no estoque que necessitam reposição emergencial.",
+            stock_shortages: ["Luva nitrílica M (LUVA-NIT-M) - Estoque crítico 8/30", "Soro fisiológico 500ml (SORO-500) - Estoque crítico 5/25"],
+            expiration_risks: ["Dipirona gotas (DIPI-GOTAS) - Expira em breve"],
+            abnormal_consumption: ["Máscara cirúrgica tripla - Pico de consumo (+34 unidades)"],
+            supplier_issues: ["Office Care Suprimentos - Sem email de contato cadastrado"],
+            purchase_suggestions: ["Solicitar compra de 100 caixas de Luva Nitrílica M", "Solicitar compra de 80 frascos de Soro Fisiológico 500ml"],
+            actions_requiring_approval: ["Compra emergencial de Luva nitrílica M (R$ 3.450,00)"],
+            next_actions: ["Entrar em contato com MedSupply", "Verificar contatos da Office Care"],
+            data_quality_issues: ["Cadastro incompleto do fornecedor Office Care"]
+          }
+        };
+
+        setRight("dashboard", renderOperationalResult("Rotina finalizada", mockResult));
+        
+        // Add log
+        state.logs.unshift({
+          message: `Rotina ${reportType} finalizada via simulação.`,
+          created_at: new Date().toLocaleTimeString()
+        });
+        renderDashboard();
+      }, 800);
+    }
+
+    // STREAM SIMULATOR FOR OPERATIONAL AGENT
+    function sendAgentRequest() {
+      switchTab("conversa");
+      const prompt = ($("#main-prompt")?.value || "").trim();
+      if (!prompt) {
+        setResultStage(renderNotice("Pedido vazio", "Digite ou grave uma solicitação antes de enviar.", "warning"));
+        return;
+      }
+
+      appendRequestHistory(prompt, "processando");
+      startAgentRunView(prompt);
+      updateAgentStatus("Processando...", "#b7791f");
+
+      const traceList = [];
+      const addTrace = (type, eventName, message, details) => {
+        traceList.push({ type, event: eventName, message, ...details });
+        appendAgentTraceEvent({ type, event: eventName, message, ...details });
+      };
+
+      // Step 1: System Route
+      setTimeout(() => {
+        addTrace("system", "route_selected", "Pedido encaminhado para processamento de IA.", { source: "operational_agent" });
+      }, 500);
+
+      // Step 2: Model Thinking
+      setTimeout(() => {
+        addTrace("model", "model_thinking", "Interpretando o prompt e identificando intenções...", { model: "Qwen2.5-7B-Instruct", prompt_tokens: 120 });
+      }, 1200);
+
+      // Step 3: Tool Execution
+      setTimeout(() => {
+        let toolQuery = prompt;
+        if (prompt.toLowerCase().includes("algod")) toolQuery = "algodão";
+        else if (prompt.toLowerCase().includes("luva")) toolQuery = "luva";
+        else if (prompt.toLowerCase().includes("a")) toolQuery = "a";
+
+        addTrace("tool", "tool_call", `Chamando fuzzy_search_inventory_tool com query='${toolQuery}'`, { tool_name: "fuzzy_search_inventory_tool", args: { query: toolQuery, limit: 10 } });
+      }, 2000);
+
+      // Step 4: Tool Response
+      setTimeout(() => {
+        let found = [];
+        const queryLower = prompt.toLowerCase();
+
+        // Simulate tool search logic
+        if (queryLower.includes("algod")) {
+          found = MOCK_PRODUCTS.filter(p => p.name.toLowerCase().includes("algodão"));
+        } else if (queryLower.includes("todos os itens do banco de dados que começa com a letra a") || queryLower.includes("começa com a letra a") || queryLower.includes("itens com a letra a")) {
+          found = MOCK_PRODUCTS.filter(p => p.name.toLowerCase().startsWith("a") || p.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith("a"));
+        } else if (queryLower.includes("baixo estoque") || queryLower.includes("menor estoque") || queryLower.includes("estoque baixo")) {
+          found = MOCK_PRODUCTS.filter(p => p.current_stock < p.minimum_stock);
+        } else {
+          // General matching
+          found = MOCK_PRODUCTS.filter(p => p.name.toLowerCase().includes(queryLower) || p.sku.toLowerCase().includes(queryLower));
+        }
+
+        addTrace("tool", "tool_response", `Retornados ${found.length} registros correspondentes no estoque.`, { tool_name: "fuzzy_search_inventory_tool", result_count: found.length });
+        
+        // Save database query log
+        state.logs.unshift({
+          message: `IA executou fuzzy_search_inventory_tool para: "${prompt}"`,
+          created_at: new Date().toLocaleTimeString()
+        });
+      }, 2800);
+
+      // Step 5: Model Processing Results
+      setTimeout(() => {
+        addTrace("model", "formatting_response", "Processando e estruturando os resultados de acordo com o modelo de dados.", { model: "Qwen2.5-7B-Instruct" });
+      }, 3500);
+
+      // Step 6: Render final output
+      setTimeout(() => {
+        let finalData = {};
+        const queryLower = prompt.toLowerCase();
+
+        if (queryLower.includes("algod")) {
+          const cottonItems = MOCK_PRODUCTS.filter(p => p.name.toLowerCase().includes("algodão"));
+          finalData = {
+            status: "completed",
+            source: "lm_studio_tools",
+            title: "Resultado para 'algodão'",
+            summary: `Encontrado ${cottonItems.length} item de algodão no inventário.`,
+            answer: `Aqui estão os detalhes do algodão em estoque.`,
+            visualization: {
+              type: "table",
+              columns: [
+                { key: "sku", label: "SKU" },
+                { key: "name", label: "Produto" },
+                { key: "category", label: "Categoria" },
+                { key: "current_stock", label: "Estoque Atual" },
+                { key: "minimum_stock", label: "Estoque Mínimo" }
+              ],
+              rows: cottonItems
+            }
+          };
+        } else if (queryLower.includes("começa com a letra a") || queryLower.includes("começam com a letra a") || queryLower.includes("itens com a letra a") || queryLower.includes("comece com a letra a")) {
+          const aItems = MOCK_PRODUCTS.filter(p => p.name.toLowerCase().startsWith("a") || p.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().startsWith("a"));
+          finalData = {
+            status: "completed",
+            source: "lm_studio_tools",
+            title: "Produtos Iniciados com 'A'",
+            summary: `Foram encontrados ${aItems.length} produtos que começam com a letra A no banco de dados.`,
+            answer: `Exibindo a listagem estruturada dos itens que se iniciam com a letra A.`,
+            visualization: {
+              type: "table",
+              columns: [
+                { key: "sku", label: "SKU" },
+                { key: "name", label: "Produto" },
+                { key: "category", label: "Categoria" },
+                { key: "current_stock", label: "Estoque" },
+                { key: "minimum_stock", label: "Mínimo" }
+              ],
+              rows: aItems
+            }
+          };
+        } else if (queryLower.includes("baixo estoque") || queryLower.includes("menor estoque") || queryLower.includes("estoque baixo")) {
+          const lowStockList = MOCK_PRODUCTS.filter(p => p.current_stock < p.minimum_stock);
+          finalData = {
+            status: "completed",
+            source: "lm_studio_tools",
+            title: "Itens com Estoque Baixo",
+            summary: `Existem ${lowStockList.length} itens operando abaixo do limite mínimo de segurança no estoque.`,
+            answer: `Recomenda-se realizar pedido de reposição imediata para estes itens.`,
+            visualization: {
+              type: "table",
+              columns: [
+                { key: "sku", label: "SKU" },
+                { key: "name", label: "Produto" },
+                { key: "current_stock", label: "Estoque" },
+                { key: "minimum_stock", label: "Estoque Mínimo" },
+                { key: "criticality", label: "Criticidade" }
+              ],
+              rows: lowStockList
+            }
+          };
+        } else {
+          // Default conversational response
+          finalData = {
+            status: "completed",
+            source: "lm_studio_tools",
+            title: "Resposta Operacional",
+            summary: "Processamento genérico efetuado com sucesso.",
+            answer: `Olá! Eu entendi o seu pedido: "${prompt}". No modo de demonstração simulado, posso buscar produtos que começam com a letra **'a'**, pesquisar por **'algodão'** ou listar itens com **'estoque baixo'**. Tente digitar um desses comandos para ver visualizações completas e chamadas de tools de verdade!`,
+            visualization: {
+              type: "answer",
+              items: []
+            }
+          };
+        }
+
+        finalData.metadata = { duration_ms: 3652, llm_calls: 2, tool_call_count: 1 };
+        
+        addTrace("response", "run_completed", "Entrega gerada com sucesso e formatada em JSON.", { result: finalData });
+
+        $("#agent-live-result").innerHTML = renderDelivery(finalData);
+        hydrateRichContent($("#agent-live-result"));
+
+        // Update request history listing
+        appendRequestHistory(prompt, "concluido", finalData.metadata);
+        updateAgentStatus("Pronto", "#1f9d67");
+      }, 4200);
+    }
+
+    function startAgentRunView(prompt) {
+      setResultStage(`
+        <div class="agent-run-box">
+          <div class="agent-run-header">
+            <div>
+              <span class="result-source">Agent Trace (MOCK)</span>
+              <h3>Executando pedido operacional</h3>
+              <p>${escapeHtml(prompt)}</p>
+            </div>
+            <span class="tag gold" id="agent-run-status-tag">em andamento</span>
+          </div>
+          <div id="agent-live-result" class="agent-live-result">
+            ${renderNotice("Executando pedido", "Validando modelo mock, simulando fluxo do agente e carregando ferramentas.", "loading")}
+          </div>
+          <div class="agent-trace-panel">
+            <div class="section-title"><h3>Eventos observáveis</h3><span>modelo, tool e resposta</span></div>
+            <div id="agent-trace-events" class="agent-trace-events"></div>
+          </div>
+        </div>
+      `);
+    }
+
+    function appendAgentTraceEvent(event) {
+      const list = $("#agent-trace-events");
+      if (!list) return;
+      const item = document.createElement("article");
+      const type = event.type || "system";
+      item.className = `agent-trace-event ${type}`;
+      const detail = { ...event };
+      delete detail.result;
+      item.innerHTML = `
+        <div class="trace-row-head">
+          <span class="trace-type">${escapeHtml(traceLabel(type))}</span>
+          <strong>${escapeHtml(event.event || type)}</strong>
+        </div>
+        <p>${escapeHtml(event.message || event.tool_name || "")}</p>
+        <pre>${escapeHtml(JSON.stringify(detail, null, 2))}</pre>
+      `;
+      list.appendChild(item);
+      list.scrollTop = list.scrollHeight;
+      
+      if (event.type === "tool") updateAgentStatus(`Tool: ${event.tool_name || "executando"}`, "#b7791f");
+      if (event.type === "model") updateAgentStatus("IA trabalhando...", "#b7791f");
+      if (event.type === "response") {
+        updateAgentStatus("Formatando entrega...", "#1f9d67");
+        const tagStatus = $("#agent-run-status-tag");
+        if (tagStatus) {
+          tagStatus.textContent = "concluído";
+          tagStatus.className = "tag green";
+        }
+      }
+    }
+
+    function traceLabel(type) {
+      return {
+        system: "sistema",
+        model: "modelo",
+        tool: "tool",
+        response: "resposta",
+        error: "erro",
+        warning: "aviso",
+      }[type] || type;
+    }
+
+    // MOCK OCR PROCESSOR
+    function handleOcrUpload() {
+      $("#ocr-preview").innerHTML = `<b>Processando fatura...</b><br><span>Lendo via OCR com modelo local...</span>`;
+      
+      setTimeout(() => {
+        const fileNames = ["medsupply_nota_2401.jpg", "clinfarm_nf_899.png", "higieniza_boleto.jpg"];
+        const randName = fileNames[Math.floor(Math.random() * fileNames.length)];
+        
+        let extracted = {};
+        if (randName.includes("medsupply")) {
+          extracted = {
+            supplier_name: "MedSupply Distribuidora",
+            date: "2026-06-12",
+            amount: "1.890,50",
+            due_date: "2026-06-28",
+            description: "Caixas de luvas nitrílicas M/G e máscaras cirúrgicas.",
+            category: "descartáveis",
+            notes: "Almoxarifado atestou conformidade dos itens recebidos."
+          };
+        } else if (randName.includes("clinfarm")) {
+          extracted = {
+            supplier_name: "Clin Farma Hospitalar",
+            date: "2026-06-10",
+            amount: "940,00",
+            due_date: "2026-07-05",
+            description: "Frascos de soro fisiológico e dipirona.",
+            category: "medicamentos",
+            notes: "Carga entregue no dia 11 de Junho."
+          };
+        } else {
+          extracted = {
+            supplier_name: "Higieniza Pro",
+            date: "2026-06-11",
+            amount: "320,00",
+            due_date: "2026-06-25",
+            description: "Sabonete antisséptico e produtos de limpeza geral.",
+            category: "limpeza",
+            notes: "Valores acordados com desconto de atacado."
+          };
+        }
+
+        $("#ocr-file-path").value = `/uploads/documents/${randName}`;
+        $("#ocr-supplier").value = extracted.supplier_name;
+        $("#ocr-date").value = extracted.date;
+        $("#ocr-amount").value = extracted.amount;
+        $("#ocr-due-date").value = extracted.due_date;
+        $("#ocr-category").value = extracted.category;
+        $("#ocr-description").value = extracted.description;
+        $("#ocr-notes").value = extracted.notes;
+
+        $("#ocr-preview").innerHTML = `<b>${randName}</b><br><span>Extração simulada concluída!</span>`;
+        
+        setRight("contas", jsonCard("JSON OCR Extraído", extracted, true));
+      }, 1200);
+    }
+
+    function saveDocument() {
+      const payload = {
+        id: `doc-${Date.now()}`,
+        created_at: new Date().toISOString(),
+        supplier_name: $("#ocr-supplier").value || "Fornecedor indefinido",
+        date: $("#ocr-date").value || "",
+        amount: $("#ocr-amount").value || "0,00",
+        due_date: $("#ocr-due-date").value || "",
+        description: $("#ocr-description").value || "",
+        category: $("#ocr-category").value || "",
+        notes: $("#ocr-notes").value || "",
+        status: "saved_for_review"
+      };
+
+      state.documents.unshift(payload);
+      setRight("contas", jsonCard("Conta Salva no Mock", payload, true));
+      loadDocuments();
+      loadDashboard();
+
+      // Reset form
+      $("#ocr-supplier").value = "";
+      $("#ocr-date").value = "";
+      $("#ocr-amount").value = "";
+      $("#ocr-due-date").value = "";
+      $("#ocr-category").value = "";
+      $("#ocr-description").value = "";
+      $("#ocr-notes").value = "";
+      $("#ocr-file-path").value = "";
+      $("#ocr-preview").textContent = "Nenhum documento enviado";
+    }
+
+    function loadDocuments() {
+      $("#account-list").innerHTML = state.documents.map((doc) => row(
+        `${doc.supplier_name} - R$ ${doc.amount}`,
+        `Vencimento: ${doc.due_date || "-"} - Categoria: ${doc.category || "-"}`,
+        tag(doc.status || "salvo", "green"),
+      )).join("") || empty("Nenhuma conta salva.");
+    }
+
+    // MOCK VOICE COMMAND SIMULATION
+    function toggleVoiceInput() {
+      if (state.recording) {
+        // Stop recording
+        clearInterval(state.recordingTimer);
+        setRecording(false);
+        
+        const voices = [
+          "Quero todos os itens que começam com a letra a",
+          "quantos algodões tem no estoque",
+          "quais são os itens com menor estoque no inventário"
+        ];
+        const randomText = voices[Math.floor(Math.random() * voices.length)];
+        $("#main-prompt").value = randomText;
+        setVoiceHint(`Transcrição simulada: "${randomText}"`);
+        updateAgentStatus("Transcrição pronta", "#1f9d67");
+      } else {
+        // Start recording
+        setRecording(true, "Ouvindo... (Simulado)");
+        setVoiceHint("Falando... Clique no botão novamente para parar e gerar a transcrição.");
+        
+        let toggle = true;
+        state.recordingTimer = setInterval(() => {
+          const spans = $$(".voice-meter span");
+          spans.forEach(s => {
+            s.style.height = `${Math.floor(Math.random() * 15) + 3}px`;
+          });
+        }, 150);
+      }
+    }
+
+    function setRecording(value, label = null) {
+      state.recording = value;
+      ["#mic-btn", "#mic-btn-panel"].forEach((selector) => $(selector)?.classList.toggle("recording", value));
+      updateAgentStatus(value ? label || "Ouvindo..." : "Ocioso", value ? "#b7791f" : "#1f9d67");
+      $(".voice-meter")?.classList.toggle("active", value);
+    }
+
+    // MOCK MEETING SUMMARIZER
+    function loadMeetingExampleText() {
+      $("#meeting-text").value = `Ata de Reunião Diária de Estoque - Clínicas CT
+Data: 12/06/2026
+Presentes: Ana Paula, Bruno Reis, Camila Torres
+
+Tópicos discutidos:
+- Tivemos um surto atípico de consultas ontem na recepção do Dr. Diego, o que resultou em um consumo de 34 unidades de máscara cirúrgica tripla, muito acima do normal de 8 unidades.
+- Nosso estoque de Luva nitrílica M está crítico, temos apenas 8 caixas, enquanto o estoque mínimo seguro é de 30 caixas. Precisamos de cotação imediata.
+- O fornecedor Office Care Suprimentos está com cadastro sem e-mail ou telefone. Ana vai tentar descobrir o contato com o setor de compras.
+- Decidimos aumentar o estoque mínimo temporário de luvas M e máscaras triplas para 40 e 100 respectivamente nos meses de inverno.
+- Rafael ficará responsável por fazer a cotação imediata do soro fisiológico, pois temos apenas 5 frascos restantes.`;
+    }
+
+    function summarizeMeeting() {
+      const text = ($("#meeting-text")?.value || "").trim();
+      if (!text) {
+        $("#meeting-results").innerHTML = empty("Cole uma transcrição ou selecione uma pauta primeiro.");
+        return;
+      }
+
+      $("#meeting-results").innerHTML = empty("Gerando resumo com modelo local simulado...");
+
+      setTimeout(() => {
+        const payload = {
+          id: `meeting-${Date.now()}`,
+          created_at: new Date().toISOString(),
+          status: "completed",
+          summary: "Revisão geral do estoque após alto consumo no consultório. Identificada escassez severa em insumos críticos (máscaras, luvas e soro fisiológico).",
+          decisions: [
+            "Aumentar estoque mínimo de luvas M para 40 caixas.",
+            "Aumentar estoque mínimo de máscaras cirúrgicas para 100 caixas devido a fatores climáticos de inverno."
+          ],
+          next_actions: [
+            "Ana Paula: Completar dados cadastrais de Office Care.",
+            "Rafael Lima: Cotar com MedSupply a compra urgente de Luvas nitrílicas M.",
+            "Rafael Lima: Cotar reposição imediata de Soro fisiológico 500ml."
+          ]
+        };
+
+        state.meetings.unshift(payload);
+
+        $("#meeting-results").innerHTML = row(
+          "Resumo da Reunião Processado",
+          payload.summary,
+          tag(payload.status, "green")
+        );
+
+        setRight("reunioes", `
+          <div class="answer-card highlight">
+            <b>Resumo Executivo (Simulação)</b>
+            <p>${payload.summary}</p>
+            
+            <label style="margin-top: 15px; display: block; font-weight: 800;">Decisões:</label>
+            <ul style="padding-left: 20px; font-size: 13px; color: var(--muted);">
+              ${payload.decisions.map(d => `<li>${d}</li>`).join("")}
+            </ul>
+
+            <label style="margin-top: 15px; display: block; font-weight: 800;">Próximas Ações:</label>
+            <ul style="padding-left: 20px; font-size: 13px; color: var(--muted);">
+              ${payload.next_actions.map(a => `<li>${a}</li>`).join("")}
+            </ul>
+          </div>
+          ${jsonCard("JSON do Resumo da Reunião", payload)}
+        `);
+      }, 1000);
+    }
+
+    // AUXILIARY HELPERS (REPLICATING PRODUCTIONS SYSTEM CODE)
+    function productSummary(product) {
+      return `${product.name} (${product.sku}) - estoque ${product.current_stock}/${product.minimum_stock}`;
+    }
+
+    function supplierSummary(supplier) {
+      const missing = [];
+      if (!supplier.email) missing.push("email");
+      if (!supplier.phone) missing.push("phone");
+      return `${supplier.name} - faltando: ${missing.join(", ")}`;
+    }
+
+    function columnsForSearch(intent) {
+      if (["low_stock", "expiration_risks", "free_product_search"].includes(intent)) {
+        return [
+          { key: "sku", label: "SKU" },
+          { key: "name", label: "Produto" },
+          { key: "category", label: "Categoria" },
+          { key: "current_stock", label: "Estoque" },
+          { key: "minimum_stock", label: "Mínimo" },
+          { key: "ideal_stock", label: "Ideal" },
+          { key: "criticality", label: "Criticidade" },
+          { key: "expiration_date", label: "Validade" },
+          { key: "status", label: "Status" },
+        ];
+      }
+      if (intent === "supplier_issues") {
+        return [
+          { key: "name", label: "Fornecedor" },
+          { key: "email", label: "Email" },
+          { key: "phone", label: "Telefone" },
+          { key: "missing", label: "Campos faltando" },
+          { key: "default_lead_time_days", label: "Prazo" },
+        ];
+      }
+      if (intent === "abnormal_consumption") {
+        return [
+          { key: "title", label: "Alerta" },
+          { key: "severity", label: "Severidade" },
+          { key: "product_id", label: "Produto ID" },
+          { key: "description", label: "Descrição" },
+          { key: "created_at", label: "Criado em" },
+        ];
+      }
+      return [{ key: "name", label: "Item" }, { key: "status", label: "Status" }];
+    }
+
+    function card(title, text, highlight = false) {
+      return `<div class="answer-card ${highlight ? "highlight" : ""}"><b>${escapeHtml(title)}</b><p>${escapeHtml(text)}</p></div>`;
+    }
+
+    function listCard(title, rows, formatter) {
+      const body = (rows || []).length
+        ? rows.slice(0, 6).map((item) => `<li>${escapeHtml(formatter(item))}</li>`).join("")
+        : "<li>Nenhum item.</li>";
+      return `<div class="answer-card"><b>${escapeHtml(title)}</b><ul>${body}</ul></div>`;
+    }
+
+    function jsonCard(title, value, highlight = false) {
+      return `<div class="answer-card ${highlight ? "highlight" : ""}"><b>${escapeHtml(title)}</b><pre>${escapeHtml(JSON.stringify(value, null, 2))}</pre></div>`;
+    }
+
+    function kpi(value, label) {
+      return `<div class="kpi"><strong>${escapeHtml(value ?? 0)}</strong><span>${escapeHtml(label)}</span></div>`;
+    }
+
+    function tag(text, color = "") {
+      return `<span class="tag ${color}">${escapeHtml(text || "-")}</span>`;
+    }
+
+    function row(title, subtitle, right = "") {
+      return `<div class="row-item"><div><b>${escapeHtml(title)}</b><span>${escapeHtml(subtitle || "")}</span></div>${right}</div>`;
+    }
+
+    function badge(value) {
+      const text = String(value || "normal");
+      let cls = "badge-success";
+      if (/(low|critical|high|baixo|erro|danger)/i.test(text)) cls = "badge-danger";
+      if (/(near|medium|venc|warning|gold|pending|model)/i.test(text)) cls = "badge-warning";
+      return `<span class="badge ${cls}">${escapeHtml(text)}</span>`;
+    }
+
+    function empty(message) {
+      return `<div class="empty">${escapeHtml(message)}</div>`;
+    }
+
+    function tableLoading() {
+      return `<tr><td colspan="4">Buscando na base mock...</td></tr>`;
+    }
+
+    function tableEmpty(message) {
+      return `<tr><td colspan="4">${message}</td></tr>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"]/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+      })[char]);
+    }
+
+    function setRight(tab, html) {
+      const body = $(`#right-${tab}-body`);
+      if (body) {
+        body.innerHTML = html;
+        hydrateRichContent(body);
+      }
+    }
+
+    function setResultStage(html) {
+      const stage = $("#agent-result-stage");
+      if (!stage) return;
+      stage.innerHTML = html;
+      hydrateRichContent(stage);
+    }
+
+    function updateAgentStatus(text, color) {
+      $("#agent-status-text").textContent = text;
+      $("#agent-status-led").style.backgroundColor = color;
+    }
+
+    function setVoiceHint(text) {
+      const target = $("#voice-hint");
+      if (target) target.textContent = text;
+    }
+
+    function setupRichRendering() {
+      if (window.mermaid) {
+        window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "neutral" });
+      }
+    }
+
+    function hydrateRichContent(root = document) {
+      renderMermaidBlocks(root);
+    }
+
+    function renderMarkdown(markdown) {
+      const text = String(markdown ?? "");
+      if (!window.marked) return escapeHtml(text).replace(/\n/g, "<br>");
+      // simple mock marked implementation or window.marked usage
+      return window.marked.parse(text, { breaks: true, gfm: true });
+    }
+
+    async function renderMermaidBlocks(root) {
+      if (!window.mermaid) return;
+      const blocks = Array.from(root.querySelectorAll("code.language-mermaid, pre.mermaid"));
+      for (const block of blocks) {
+        const source = block.textContent || "";
+        const host = block.closest("pre") || block;
+        if (!source.trim() || host.dataset.rendered === "true") continue;
+        try {
+          const id = `mermaid-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+          const rendered = await window.mermaid.render(id, source);
+          host.outerHTML = `<div class="mermaid-block">${rendered.svg}</div>`;
+          host.dataset.rendered = "true";
+        } catch (error) {
+          host.classList.add("mermaid-error");
+          host.title = error.message;
+        }
+      }
+    }
+
+    function appendRequestHistory(prompt, status, metadata = null) {
+      const history = $("#request-history");
+      if (!history) return;
+      const emptyNode = history.querySelector(".empty");
+      if (emptyNode) emptyNode.remove();
+      const item = document.createElement("div");
+      item.className = "history-item";
+      const timing = metadata?.duration_ms != null ? ` - ${metadata.duration_ms}ms` : "";
+      item.innerHTML = `<b>${escapeHtml(status || "pedido")}${escapeHtml(timing)}</b><span>${escapeHtml(prompt)}</span>`;
+      history.prepend(item);
+    }
+
+    function renderDelivery(payload) {
+      const visualization = payload?.visualization || {};
+      const metadata = payload?.metadata || {};
+
+      const header = `
+        <div class="result-headline">
+          <div>
+            <span class="result-source">${escapeHtml(payload?.source || "operacional")}</span>
+            <h3>${escapeHtml(payload?.title || "Resultado operacional")}</h3>
+            <p>${escapeHtml(payload?.summary || "")}</p>
+          </div>
+          <div class="result-metrics">
+            <strong>${escapeHtml(metadata.duration_ms ?? "-")}</strong><span>ms</span>
+            <strong>${escapeHtml(metadata.llm_calls ?? 0)}</strong><span>IA calls</span>
+          </div>
+        </div>
+      `;
+
+      if (visualization.type === "table") {
+        return `${header}${renderTable(visualization.columns || [], visualization.rows || [])}`;
+      }
+      if (visualization.type === "list") {
+        return `${header}${renderList(visualization.items || [])}`;
+      }
+      if (visualization.type === "answer") {
+        return `${header}<div class="result-answer">${renderMarkdown(payload?.answer || payload?.summary || "")}</div>`;
+      }
+      if (visualization.type === "report") {
+        return `${header}${renderReportBlocks(visualization.report || {})}`;
+      }
+      return `${header}${jsonCard("Detalhes técnicos", payload)}`;
+    }
+
+    function renderTable(columns, rows) {
+      if (!rows.length) return `<div class="empty">Nenhum item encontrado.</div>`;
+      const head = columns.map((column) => `<th>${escapeHtml(column.label || column.key)}</th>`).join("");
+      const body = rows.map((rowData) => (
+        `<tr>${columns.map((column) => {
+          const value = rowData[column.key];
+          return `<td>${formatCell(value)}</td>`;
+        }).join("")}</tr>`
+      )).join("");
+      return `<div class="result-table-wrap"><table class="result-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+    }
+
+    function renderList(items) {
+      if (!items.length) return `<div class="empty">Nenhum item retornado.</div>`;
+      return `<ol class="result-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`;
+    }
+
+    function formatCell(value) {
+      if (Array.isArray(value)) return escapeHtml(value.join(", "));
+      if (value && typeof value === "object") return escapeHtml(JSON.stringify(value));
+      if (value === null || value === undefined || value === "") return '<span class="muted">-</span>';
+      return escapeHtml(value);
+    }
+
+    function renderNotice(title, message, level = "info") {
+      return `<div class="result-notice ${escapeHtml(level)}"><b>${escapeHtml(title)}</b><p>${escapeHtml(message)}</p></div>`;
+    }
+
+    function renderOperationalResult(title, payload) {
+      if (payload?.visualization) return renderDelivery(payload);
+      const report = payload?.result?.final_report || payload?.final_report || payload?.result?.report || null;
+      if (!report) return jsonCard(title, payload, true);
+
+      const sections = [
+        ["Falta de estoque", report.stock_shortages],
+        ["Validade próxima", report.expiration_risks],
+        ["Consumo anormal", report.abnormal_consumption],
+        ["Fornecedores", report.supplier_issues],
+        ["Sugestões de compra", report.purchase_suggestions],
+        ["Aprovação", report.actions_requiring_approval],
+        ["Próximas ações", report.next_actions],
+        ["Qualidade dos dados", report.data_quality_issues],
+      ];
+      const cards = sections.map(([label, rows]) => {
+        const items = Array.isArray(rows) && rows.length
+          ? rows.slice(0, 5).map((item) => `<li>${escapeHtml(item.product_name || item.title || item.issue || item.recommended_action || item)}</li>`).join("")
+          : "<li>Nenhum item.</li>";
+        return `<div class="report-section"><span>${escapeHtml(label)}</span><ul>${items}</ul></div>`;
+      }).join("");
+
+      return `
+        <div class="answer-card highlight">
+          <b>${escapeHtml(title)}</b>
+          <div class="markdown-body">${renderMarkdown(report.executive_summary || payload?.message || "Relatório gerado.")}</div>
+          <div class="report-grid">${cards}</div>
+        </div>
+        ${jsonCard("JSON validado", payload)}
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+# Arquivo removido pelo assistente.

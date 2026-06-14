@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Banco Simulado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/operational_app.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="sidebar-brand-text">
+          <strong>Banco Simulado</strong>
+          <span>Gerenciamento</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Navegacao principal">
+        <div class="sidebar-section-label">Principal</div>
+        <button class="nav-item active" data-tab="assistente" type="button">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Painel
+        </button>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Operacional</div>
+
+        <button class="nav-item" data-tab="dashboard" type="button">
+          <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+          Visao Geral
+          <span class="nav-badge warn" id="badge-alertas">0</span>
+        </button>
+
+        <button class="nav-item" data-tab="estoque" type="button">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+          Banco de Dados
+        </button>
+
+        <button class="nav-item" data-tab="contas" type="button">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Contas
+        </button>
+
+        <button class="nav-item" data-tab="reunioes" type="button">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Reunioes
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-dot" id="model-status-dot" title="Sistema online"></span>
+        <div class="sidebar-user-info">
+          <strong id="model-status-text">Checando IA local...</strong>
+          <span id="selected-model">{{ selected_model }}</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main page-view active" id="page-assistente">
+      <header class="topbar">
+        <div>
+          <div class="topbar-title">Painel</div>
+          <div class="topbar-subtitle" id="runtime-status-text">Runtime: livre</div>
+        </div>
+        <div class="topbar-actions">
+          <span class="system-pill" id="agent-status-pill">
+            <i class="mini-dot" id="agent-status-led"></i>
+            <span id="agent-status-text">Ocioso</span>
+          </span>
+          <span class="system-pill" id="stt-status-text">STT: checando...</span>
+          <span class="system-pill" id="ocr-status-text">OCR: checando...</span>
+          <button class="icon-btn" title="Limpar" id="btn-clear-painel" type="button">
+            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="painel-layout">
+        <aside class="history-panel">
+          <div class="history-head">Entregas</div>
+          <div class="history-list" id="request-history">
+            <div class="history-empty">Nenhuma consulta ainda.<br>Selecione uma opcao acima.</div>
+          </div>
+        </aside>
+
+        <section class="work-area">
+          <div class="option-grid" id="option-grid">
+            <button class="option-card" data-suggestion="Liste os itens com menor estoque." type="button">
+              <div class="option-icon red"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+              <div><div class="option-label">Estoque baixo</div><div class="option-count">consulta real</div></div>
+            </button>
+            <button class="option-card" data-suggestion="Liste os produtos com validade proxima." type="button">
+              <div class="option-icon yellow"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+              <div><div class="option-label">Vencimentos</div><div class="option-count">validade proxima</div></div>
+            </button>
+            <button class="option-card" data-suggestion="Busque todos os itens no banco que comecam com a letra a." type="button">
+              <div class="option-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+              <div><div class="option-label">Produtos com A</div><div class="option-count">busca por ferramenta</div></div>
+            </button>
+            <button class="option-card" data-suggestion="Liste os fornecedores com problemas de contato." type="button">
+              <div class="option-icon purple"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div><div class="option-label">Fornecedores</div><div class="option-count">cadastro e contato</div></div>
+            </button>
+            <button class="option-card" data-suggestion="Liste as contas salvas que vencem nos proximos 15 dias." type="button">
+              <div class="option-icon green"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div><div class="option-label">Contas proximas</div><div class="option-count">documentos salvos</div></div>
+            </button>
+            <button class="option-card" data-run-ai-report="daily_inventory_review" type="button">
+              <div class="option-icon yellow"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+              <div><div class="option-label">Revisao diaria</div><div class="option-count">relatorio por IA</div></div>
+            </button>
+          </div>
+
+          <div class="delivery-area" id="agent-result-stage">
+            <div class="delivery-empty">
+              <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              <h3>Selecione uma opcao</h3>
+              <p>Escolha uma consulta acima ou use o campo abaixo para obter uma entrega estruturada.</p>
+            </div>
+          </div>
+
+          <div class="query-bar">
+            <textarea class="query-input" id="main-prompt" rows="1" placeholder="Peça uma entrega operacional..." autocomplete="off"></textarea>
+            <button class="input-action" title="Enviar audio" type="button" onclick="document.getElementById('audio-file-selector').click()">
+              <svg viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </button>
+            <button class="mic-btn" id="mic-btn" title="Falar" type="button">
+              <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
+            <button class="send-btn" id="send-request" title="Executar" type="button">
+              <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+            <input type="file" id="audio-file-selector" accept="audio/*" hidden>
+          </div>
+          <div class="input-hint" id="voice-hint">Microfone usa STT nativo quando o navegador suporta. <span id="voice-mode">Nativo do navegador</span></div>
+        </section>
+      </div>
+    </main>
+
+    <main class="main page-view" id="page-dashboard">
+      <header class="topbar">
+        <div class="topbar-title">Visao Geral</div>
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Atualizar" id="refresh-dashboard" type="button">
+            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+          </button>
+        </div>
+      </header>
+      <div class="overview-body">
+        <div class="kpi-grid" id="dashboard-kpis"></div>
+        <div class="overview-grid">
+          <section class="section-card">
+            <div class="section-card-head"><h3>Saude das integracoes</h3><span class="count-tag" id="integration-tag">Checando</span></div>
+            <div class="section-card-body" id="integration-status"></div>
+          </section>
+          <section class="section-card">
+            <div class="section-card-head"><h3>Acoes rapidas</h3></div>
+            <div class="section-card-body">
+              <button class="action-btn" data-quick-search="itens com menor estoque" type="button">
+                <div><div class="action-btn-label">Ver estoque baixo</div><div class="action-btn-desc">Produtos abaixo do minimo</div></div>
+                <span class="action-arrow"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </button>
+              <button class="action-btn" data-run-ai-report="daily_inventory_review" type="button">
+                <div><div class="action-btn-label">Revisao diaria por IA</div><div class="action-btn-desc">Relatorio operacional estruturado</div></div>
+                <span class="action-arrow"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </button>
+              <button class="action-btn" type="button" data-tab-jump="assistente">
+                <div><div class="action-btn-label">Perguntar ao Assistente</div><div class="action-btn-desc">Fazer uma pergunta por texto ou voz</div></div>
+                <span class="action-arrow"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </button>
+            </div>
+          </section>
+        </div>
+        <div class="overview-grid">
+          <section class="section-card">
+            <div class="section-card-head"><h3>Ultimas execucoes</h3></div>
+            <div class="section-card-body" id="recent-runs"></div>
+          </section>
+          <section class="section-card">
+            <div class="section-card-head"><h3>Logs observaveis</h3></div>
+            <div class="section-card-body" id="recent-logs"></div>
+          </section>
+        </div>
+        <section class="section-card">
+          <div class="section-card-head"><h3>Resumo operacional</h3></div>
+          <div class="section-card-body padded" id="dashboard-output"></div>
+        </section>
+      </div>
+    </main>
+
+    <main class="main page-view" id="page-estoque">
+      <header class="topbar">
+        <div class="topbar-title">Banco de Dados</div>
+        <div class="topbar-actions">
+          <button class="btn-secondary-sm" id="reload-search" type="button">Consultar</button>
+        </div>
+      </header>
+      <div class="page-content">
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" id="db-search" placeholder="Pesquisa rapida geral..." autocomplete="off">
+          </div>
+          <select class="filter-select" id="db-scope">
+            <option value="estoque">Estoque</option>
+            <option value="baixo_estoque">Menor estoque</option>
+            <option value="vencimentos">Vencimentos</option>
+            <option value="consumo">Consumo anormal</option>
+            <option value="fornecedores">Fornecedores</option>
+            <option value="relatorios">Relatorios</option>
+          </select>
+          <button class="btn-primary fixed" id="run-search" type="button">Buscar</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Item</th><th>Tipo</th><th>Indicador</th><th>Status</th></tr></thead>
+            <tbody id="inventory-table-body"></tbody>
+          </table>
+        </div>
+
+        <section class="section-card compact">
+          <div class="section-card-head"><h3>Entrega da consulta</h3></div>
+          <div class="section-card-body padded" id="estoque-output"></div>
+        </section>
+      </div>
+    </main>
+
+    <main class="main page-view" id="page-contas">
+      <header class="topbar">
+        <div class="topbar-title">Contas</div>
+        <div class="topbar-actions">
+          <button class="btn-secondary-sm" id="reload-documents" type="button">Recarregar</button>
+        </div>
+      </header>
+      <div class="contas-body">
+        <div class="contas-grid">
+          <div>
+            <label class="upload-card" id="contas-upload-zone" for="bill-file-selector">
+              <svg viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <h4>Enviar nota ou boleto</h4>
+              <p>Conta, boleto, nota, PDF ou imagem para OCR.</p>
+              <input type="file" id="bill-file-selector" accept="image/*,.pdf" hidden>
+            </label>
+            <div class="ocr-preview-box" id="ocr-preview">Nenhum documento enviado</div>
+            <section class="section-card compact">
+              <div class="section-card-head"><h3>Retorno OCR</h3></div>
+              <div class="section-card-body padded" id="contas-output"></div>
+            </section>
+          </div>
+
+          <div class="form-card">
+            <div class="form-card-head">Dados extraidos</div>
+            <div class="form-card-body">
+              <input type="hidden" id="ocr-file-path">
+              <div class="form-field"><label class="form-label">Fornecedor</label><input class="form-input" id="ocr-supplier" placeholder="-"></div>
+              <div class="form-field"><label class="form-label">Data</label><input class="form-input" id="ocr-date" placeholder="AAAA-MM-DD"></div>
+              <div class="form-field"><label class="form-label">Valor (R$)</label><input class="form-input" id="ocr-amount" placeholder="0,00"></div>
+              <div class="form-field"><label class="form-label">Vencimento</label><input class="form-input" id="ocr-due-date" placeholder="AAAA-MM-DD"></div>
+              <div class="form-field"><label class="form-label">Categoria</label><input class="form-input" id="ocr-category" placeholder="-"></div>
+              <div class="form-field"><label class="form-label">Descricao</label><input class="form-input" id="ocr-description" placeholder="-"></div>
+              <div class="form-field"><label class="form-label">Observacoes</label><input class="form-input" id="ocr-notes" placeholder="-"></div>
+              <button class="save-btn" id="save-document" type="button">Salvar</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="list-title">Documentos salvos</div>
+          <div class="doc-list" id="account-list"></div>
+        </div>
+      </div>
+    </main>
+
+    <main class="main page-view" id="page-reunioes">
+      <header class="topbar">
+        <div class="topbar-title">Reunioes</div>
+        <div class="topbar-actions">
+          <label class="btn-secondary-sm" for="meeting-file-selector">Importar texto</label>
+          <input type="file" id="meeting-file-selector" accept=".txt,.md,.csv,text/*" hidden>
+          <button class="btn-primary fixed" id="summarize-meeting" type="button">Resumir e Estruturar</button>
+        </div>
+      </header>
+      <div class="reunioes-body">
+        <div class="reunioes-input-container">
+          <textarea class="meeting-textarea-compact" id="meeting-text" placeholder="Cole aqui a transcricao ou pauta da reuniao para gerar a entrega estruturada..."></textarea>
+          <div class="reunioes-input-bar">
+            <span id="upload-status">Nenhum arquivo importado</span>
+          </div>
+        </div>
+
+        <div class="reunioes-result-container" id="meeting-results"></div>
+        <div class="reunioes-result-container" id="reunioes-output">
+          <div class="meeting-placeholder">
+            <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <p>Aguardando entrada. Cole a transcricao da reuniao acima para visualizar a entrega estruturada.</p>
+          </div>
+        </div>
+
+        <div class="overview-grid">
+          <section class="section-card">
+            <div class="section-card-head"><h3>Historico de reunioes</h3></div>
+            <div class="section-card-body" id="meeting-history"></div>
+          </section>
+          <section class="section-card">
+            <div class="section-card-head"><h3>Memoria escrita pela IA</h3></div>
+            <div class="section-card-body" id="meeting-memory"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/operational_app.js"></script>
+</body>
+</html>

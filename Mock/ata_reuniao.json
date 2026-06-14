@@ -1,0 +1,33 @@
+{
+  "titulo": "Ata de Alinhamento Emergencial - Estoque e Logística",
+  "data": "12/06/2026",
+  "participantes": [
+    "Ana Paula",
+    "Rafael",
+    "Diretora"
+  ],
+  "principais_topicos": [
+    "Revisão do estoque de EPIs críticos após aumento de consultas na clínica",
+    "Situação dos fornecedores com cadastro incompleto no painel",
+    "Reposição urgente de Soro Fisiológico e Luva Nitrílica M"
+  ],
+  "decisoes": [
+    "Aumentar temporariamente o estoque mínimo de máscaras e luvas M.",
+    "Contato com Office Care deve ser resolvido até terça-feira.",
+    "Compra emergencial de Soro Fisiológico 500ml autorizada pela diretoria."
+  ],
+  "acoes": [
+    {
+      "responsavel": "Ana Paula",
+      "tarefa": "Atualizar cadastro do fornecedor Office Care"
+    },
+    {
+      "responsavel": "Rafael",
+      "tarefa": "Fazer cotação de Soro Fisiológico com Clin Farma"
+    },
+    {
+      "responsavel": "Rafael",
+      "tarefa": "Enviar pedido de Luva Nitrílica M para MedSupply"
+    }
+  ]
+}

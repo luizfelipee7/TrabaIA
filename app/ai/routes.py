@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.ai.agent import InventoryAIAgent
 from app.ai.llm_client import LocalLLMClient, LocalLLMError, MODEL_STATE
+from app.ai.model_policy import active_model_for_task, client_for_task
 from app.ai.qa import (
     enrich_and_save_run,
     get_batch_export_path,
@@ -20,6 +21,7 @@ from app.ai.qa import (
     list_runs,
     save_batch_artifacts,
 )
+from app.ai.runtime_guard import AIRuntimeBusy, acquire_ai_runtime, current_ai_runtime
 from app.ai.schemas import AIBatchReviewRequest, AIModelSelectRequest, AIReviewRequest
 from app.ai.tools import list_ai_reports, read_ai_logs
 from app.database import BASE_DIR, get_db
@@ -68,11 +70,6 @@ def select_model(payload: AIModelSelectRequest):
 
     response["ok"] = True
     response["load_attempt"] = None
-    if payload.attempt_load:
-        try:
-            response["load_attempt"] = client.load_model(payload.model_name)
-        except LocalLLMError as exc:
-            response["load_attempt"] = {"ok": False, "message": str(exc)}
     return response
 
 
@@ -82,13 +79,16 @@ def run_daily_inventory_review(
     db: Session = Depends(get_db),
 ):
     try:
-        client = LocalLLMClient()
+        model = active_model_for_task("daily_inventory_review")
+        with acquire_ai_runtime("daily_inventory_review", model=model):
+            client = client_for_task("daily_inventory_review")
+            agent = InventoryAIAgent(db=db, llm_client=client)
+            objective = payload.objective if payload else None
+            return _run_review_with_qa(agent, objective=objective)
+    except AIRuntimeBusy as exc:
+        return {"status": "ai_busy", "message": str(exc), "active_runtime": current_ai_runtime(), "steps": []}
     except LocalLLMError as exc:
         return {"status": "error", "message": str(exc), "steps": []}
-
-    agent = InventoryAIAgent(db=db, llm_client=client)
-    objective = payload.objective if payload else None
-    return _run_review_with_qa(agent, objective=objective)
 
 
 @router.post("/daily-inventory-review/stream")
@@ -97,7 +97,8 @@ def stream_daily_inventory_review(
     db: Session = Depends(get_db),
 ):
     try:
-        client = LocalLLMClient()
+        model = active_model_for_task("daily_inventory_review")
+        client = client_for_task("daily_inventory_review")
     except LocalLLMError as exc:
         return StreamingResponse(
             _single_sse({"event": "run_error", "type": "error", "message": str(exc)}),
@@ -107,7 +108,7 @@ def stream_daily_inventory_review(
     agent = InventoryAIAgent(db=db, llm_client=client)
     objective = payload.objective if payload else None
     return StreamingResponse(
-        _stream_review_events(agent, objective=objective),
+        _stream_review_events(agent, objective=objective, model=model),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
@@ -123,19 +124,23 @@ def run_daily_inventory_review_batch(
     runs = []
 
     try:
-        client = LocalLLMClient()
+        model = active_model_for_task("daily_inventory_review")
+        with acquire_ai_runtime("daily_inventory_review_batch", model=model, detail=batch_id):
+            client = client_for_task("daily_inventory_review")
+
+            for index in range(1, count + 1):
+                agent = InventoryAIAgent(db=db, llm_client=client)
+                run = _run_review_with_qa(
+                    agent,
+                    objective=payload.objective,
+                    batch_id=batch_id,
+                    batch_index=index,
+                )
+                runs.append(run)
     except LocalLLMError as exc:
         return {"status": "error", "message": str(exc), "runs": []}
-
-    for index in range(1, count + 1):
-        agent = InventoryAIAgent(db=db, llm_client=client)
-        run = _run_review_with_qa(
-            agent,
-            objective=payload.objective,
-            batch_id=batch_id,
-            batch_index=index,
-        )
-        runs.append(run)
+    except AIRuntimeBusy as exc:
+        return {"status": "ai_busy", "message": str(exc), "active_runtime": current_ai_runtime(), "runs": []}
 
     summary = save_batch_artifacts(batch_id, runs, objective=payload.objective)
     return {"status": "completed", "batch": summary, "runs": runs}
@@ -211,27 +216,37 @@ def _run_review_with_qa(
     )
 
 
-def _stream_review_events(agent: InventoryAIAgent, *, objective: str | None):
+def _stream_review_events(agent: InventoryAIAgent, *, objective: str | None, model: str):
+    try:
+        runtime = acquire_ai_runtime("daily_inventory_review_stream", model=model)
+        runtime.__enter__()
+    except AIRuntimeBusy as exc:
+        yield _format_sse({"event": "run_busy", "type": "warning", "message": str(exc), "active_runtime": current_ai_runtime()})
+        return
+
     started_at = datetime.utcnow().isoformat()
     start = perf_counter()
     final_result = None
-    for event in agent.stream_daily_inventory_review(objective=objective):
-        if event.get("event") in {"run_completed", "run_error"} and isinstance(event.get("result"), dict):
-            final_result = event["result"]
-            duration_ms = int((perf_counter() - start) * 1000)
-            finished_at = datetime.utcnow().isoformat()
-            enriched = enrich_and_save_run(
-                final_result,
-                objective=objective,
-                model=MODEL_STATE.selected_model,
-                started_at=started_at,
-                finished_at=finished_at,
-                duration_ms=duration_ms,
-            )
-            event = {**event, "result": enriched}
-        yield _format_sse(event)
-    if final_result is None:
-        yield _format_sse({"event": "stream_closed", "type": "system", "message": "Stream encerrado."})
+    try:
+        for event in agent.stream_daily_inventory_review(objective=objective):
+            if event.get("event") in {"run_completed", "run_error"} and isinstance(event.get("result"), dict):
+                final_result = event["result"]
+                duration_ms = int((perf_counter() - start) * 1000)
+                finished_at = datetime.utcnow().isoformat()
+                enriched = enrich_and_save_run(
+                    final_result,
+                    objective=objective,
+                    model=MODEL_STATE.selected_model,
+                    started_at=started_at,
+                    finished_at=finished_at,
+                    duration_ms=duration_ms,
+                )
+                event = {**event, "result": enriched}
+            yield _format_sse(event)
+        if final_result is None:
+            yield _format_sse({"event": "stream_closed", "type": "system", "message": "Stream encerrado."})
+    finally:
+        runtime.__exit__(None, None, None)
 
 
 def _single_sse(event: dict):

@@ -1,12 +1,11 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AIModelSelectRequest(BaseModel):
     model_name: str
-    attempt_load: bool = False
 
 
 class AIReviewRequest(BaseModel):
@@ -25,7 +24,21 @@ class AIReportScopeValidation(BaseModel):
     correction_instruction: str
 
 
+class OperationalAnswer(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["completed", "no_data", "needs_clarification", "error"]
+    title: str
+    summary: str
+    answer: str
+    visualization_type: Literal["answer", "table", "list"]
+    items: list[str] = Field(default_factory=list)
+    sources: list[str] = Field(default_factory=list)
+
+
 class ProductReportItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     product_id: int | None = None
     sku: str | None = None
     product_name: str | None = None
@@ -41,6 +54,8 @@ class PurchaseSuggestion(ProductReportItem):
 
 
 class SupplierIssue(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     supplier_id: int | None = None
     supplier_name: str | None = None
     severity: Literal["low", "medium", "high"] | str
@@ -51,6 +66,8 @@ class SupplierIssue(BaseModel):
 
 
 class ApprovalAction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     action: str
     severity: Literal["low", "medium", "high"] | str
     evidence: str
@@ -60,6 +77,8 @@ class ApprovalAction(BaseModel):
 
 
 class NextAction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     action: str
     priority: Literal["low", "medium", "high"] | str
     owner: str | None = None
@@ -68,6 +87,8 @@ class NextAction(BaseModel):
 
 
 class DataQualityIssue(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     issue_type: str
     severity: Literal["low", "medium", "high"] | str
     evidence: str
@@ -77,6 +98,8 @@ class DataQualityIssue(BaseModel):
 
 
 class DailyInventoryReviewReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     report_type: Literal["daily_inventory_review"] = "daily_inventory_review"
     generated_at: datetime
     scope: list[str]

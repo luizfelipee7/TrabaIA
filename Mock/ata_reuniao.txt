@@ -1,0 +1,40 @@
+# Ata de Alinhamento Emergencial - Estoque e Logística (12/06/2026)
+
+**Participantes:** Ana Paula, Rafael, Diretora
+
+---
+
+### 📋 Pauta da Reunião
+- Revisão do estoque de EPIs críticos após aumento de consultas na clínica
+- Situação dos fornecedores com cadastro incompleto no painel
+- Reposição urgente de Soro Fisiológico e Luva Nitrílica M
+
+### 💬 Discussão e Alinhamento
+- O estoque de luvas M está em 8 caixas, bem abaixo do mínimo de 30 caixas.
+- Soro fisiológico com apenas 5 frascos, mínimo de 25 frascos. Risco operacional alto.
+- Office Care Suprimentos sem e-mail de contato cadastrado.
+- Consumo de Máscara cirúrgica tripla apresentou pico atípico de 34 unidades em 1 dia.
+
+### 🤝 Decisões Tomadas
+- **Ajuste de Estoque**: Aumentar temporariamente o estoque mínimo de máscaras e luvas M.
+- **Cadastro**: Contato com Office Care deve ser resolvido até terça-feira.
+- **Financeiro/Compras**: Compra emergencial de Soro Fisiológico 500ml autorizada pela diretoria.
+
+### 🚀 Plano de Ação (Tarefas)
+| Responsável | Tarefa | Status |
+| :--- | :--- | :--- |
+| **Ana Paula** | Atualizar cadastro do fornecedor Office Care | ⏳ Pendente |
+| **Rafael** | Fazer cotação de Soro Fisiológico com Clin Farma | ⏳ Pendente |
+| **Rafael** | Enviar pedido de Luva Nitrílica M para MedSupply | ⏳ Pendente |
+
+### 📊 Fluxograma de Ações e Decisões
+```mermaid
+graph TD
+  Start["Ata Emergencial (12/06/2026)"]
+  Start --> Dec0["Aumentar estoque máscaras/luvas M"]
+  Start --> Dec1["Resolver Office Care até terça"]
+  Start --> Dec2["Compra emergencial Soro Fisiológico"]
+  Start --> Act0["Ana Paula: Atualizar cadastro Office Care"]
+  Start --> Act1["Rafael: Cotar Soro Clin Farma"]
+  Start --> Act2["Rafael: Pedir Luva Nitrílica MedSupply"]
+```

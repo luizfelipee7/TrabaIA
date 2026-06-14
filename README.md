@@ -1,251 +1,114 @@
 # Banco Simulado de Estoque
 
-API local em Python para simular o banco operacional de estoque de um pequeno consultório.
+Aplicação local em FastAPI para operar um banco SQLite de estoque e testar uma IA local via LM Studio.
 
-O projeto combina um banco SQLite de estoque simulado com uma camada local e controlada de IA via LM Studio. A IA usa apenas tools permitidas pelo codigo e nao altera dados criticos diretamente.
-
-## Stack
-
-- Python 3.11+
-- FastAPI
-- SQLite
-- SQLAlchemy 2.x
-- Pydantic
-- Uvicorn
-
-## Como rodar
-
-No PowerShell, entre na pasta do projeto:
+## Como abrir
 
 ```powershell
-cd Banco_Simulado
+cd C:\Users\tzdie\Documents\Codex\Banco_Simulado
+.\run_api.bat
 ```
 
-Crie e ative um ambiente virtual:
+Interface principal:
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+```text
+http://127.0.0.1:8000/assistente
 ```
 
-Instale as dependências:
-
-```powershell
-pip install -r requirements.txt
-```
-
-Inicie a API:
-
-```powershell
-uvicorn app.main:app --reload
-```
-
-A documentação interativa fica em:
+API docs:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-O banco SQLite será criado automaticamente em:
+## Modelos
 
-```text
-clinic_inventory.db
-```
+A aplicação não carrega modelos pelo endpoint nativo do LM Studio e não chama `/api/v1/models/load`.
 
-## Fluxo principal
+Mantenha o modelo desejado carregado no LM Studio. O backend apenas envia o nome do modelo na chamada OpenAI-compatible.
 
-Resetar e popular o banco:
+Política padrão:
 
-```powershell
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/seed/reset
-```
+- `AI_WORKER_MODEL=nvidia/nemotron-3-nano-4b`: pedidos operacionais, banco, tools e saída estruturada.
+- `AI_QUALITY_MODEL=google/gemma-4-e4b`: OCR, resumo e geração que exige mais qualidade.
+- `AI_BALANCED_MODEL=mistralai/ministral-3-3b`: modelo intermediário para testes.
 
-Listar produtos:
+Se o modelo esperado para a tarefa não aparecer em `/v1/models`, a aplicação bloqueia a chamada e mostra erro claro em vez de cair silenciosamente em outro modelo.
 
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/products
-```
+## IA Operacional
 
-Listar movimentações:
+A aba `Entrega` usa um agente operacional simples com native tool calling.
 
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/movements
-```
+Fluxo:
 
-Executar a análise determinística de estoque:
+1. Recebe o pedido do usuário.
+2. Valida o modelo esperado pela política.
+3. Chama a IA trabalhadora com tools operacionais.
+4. Executa as tools no backend enquanto a IA pedir novas consultas úteis.
+5. Interrompe apenas quando a IA parar de pedir tools ou repetir exatamente uma chamada sem progresso.
+6. Valida a resposta final curta da IA com Pydantic.
+7. Renderiza tabelas diretamente do resultado real da tool, sem pedir para o modelo reescrever todas as linhas em JSON.
+8. Mostra o Agent Trace com eventos observáveis.
 
-```powershell
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/simulation/run-stock-check
-```
+Tools operacionais:
 
-Consultar alertas abertos:
+- `search_inventory_items_tool`
+- `get_inventory_item_tool`
+- `list_suppliers_tool`
+- `list_stock_alerts_tool`
+- `list_saved_documents_tool`
+- `run_stock_check_tool`
 
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/alerts/open
-```
+## Revisão Diária
 
-## Cenários simulados no seed
+A revisão diária de estoque continua separada do fluxo operacional rápido.
 
-- 5 fornecedores
-- 25 produtos
-- Movimentações nos últimos 30 dias
-- Produtos com estoque normal
-- Produtos abaixo do mínimo
-- Produtos críticos abaixo do mínimo
-- Produtos próximos do vencimento
-- Fornecedor com contato incompleto
-- Produto com consumo anormal recente
-- Ajuste de estoque suspeito
-
-## Endpoints
-
-Produtos:
-
-- `GET /products`
-- `GET /products/{product_id}`
-- `POST /products`
-- `PATCH /products/{product_id}`
-
-Fornecedores:
-
-- `GET /suppliers`
-- `GET /suppliers/{supplier_id}`
-- `POST /suppliers`
-
-Movimentações:
-
-- `GET /movements`
-- `GET /products/{product_id}/movements`
-- `POST /movements`
-
-Regras:
-
-- `GET /rules`
-
-Alertas:
-
-- `GET /alerts`
-- `GET /alerts/open`
-- `PATCH /alerts/{alert_id}/resolve`
-- `PATCH /alerts/{alert_id}/ignore`
-
-Simulação:
-
-- `POST /seed/reset`
-- `POST /simulation/run-stock-check`
-
-## Consistência de estoque
-
-Ao registrar uma movimentação por `POST /movements`:
-
-- `in` aumenta o estoque atual
-- `out` diminui o estoque atual
-- `loss` diminui o estoque atual
-- `adjustment` aplica a quantidade informada, positiva ou negativa
-- estoque negativo é bloqueado, exceto quando `allow_negative=true`
-- `updated_at` do produto é atualizado
-- a movimentação é salva no histórico
-
-## IA local com LM Studio
-
-Esta etapa adiciona uma IA operacional simples para revisar o estoque usando apenas tools controladas pelo codigo. Ela nao acessa SQL diretamente, nao altera estoque, nao aprova compras, nao resolve alertas e nao envia mensagens externas.
-
-Dependencias adicionais:
-
-```powershell
-pip install -r requirements.txt
-```
-
-No LM Studio:
-
-1. Abra o LM Studio.
-2. Carregue um modelo de chat.
-3. Inicie o servidor local da API.
-4. Use a URL padrao `http://localhost:1234/v1`.
-
-A aplicacao usa o SDK oficial da OpenAI apontando para o LM Studio:
-
-- `LM_STUDIO_BASE_URL`: padrao `http://localhost:1234/v1`
-- `LM_STUDIO_API_KEY`: padrao `lm-studio`
-- `LM_STUDIO_MODEL`: padrao `local-model`
-
-Interface web da IA:
+Dashboard técnico:
 
 ```text
 http://127.0.0.1:8000/ai/dashboard
 ```
 
-Endpoints da IA:
+Esse painel é para QA, batch, trace e exportação de runs. Ele não representa a experiência principal do usuário operacional.
 
-- `GET /ai/models`: lista modelos disponiveis no LM Studio via `/v1/models`
-- `POST /ai/models/select`: seleciona o modelo usado nas proximas chamadas
-- `POST /ai/daily-inventory-review`: executa a revisao diaria com tools controladas
-- `POST /ai/daily-inventory-review/batch`: executa varias revisoes em sequencia para QA
-- `GET /ai/logs`: mostra logs recentes da IA
-- `GET /ai/reports`: mostra relatorios salvos
-- `GET /ai/qa/runs`: lista execucoes de QA exportadas
-- `GET /ai/qa/runs/{run_id}`: abre uma execucao completa com timeline e metricas
-- `GET /ai/qa/runs/{run_id}/export`: baixa o JSON de uma execucao
-- `GET /ai/qa/batches`: lista batches exportados
-- `GET /ai/qa/batches/{batch_id}/export?format=json`: baixa resumo JSON do batch
-- `GET /ai/qa/batches/{batch_id}/export?format=csv`: baixa comparativo CSV do batch
+## STT
 
-Exemplo para selecionar modelo:
+O STT principal é o reconhecimento nativo do navegador quando disponível.
 
-```powershell
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/ai/models/select `
-  -ContentType "application/json" `
-  -Body '{"model_name":"nome-do-modelo"}'
+Uploads de áudio retornam status claro caso não exista backend STT externo configurado. O projeto principal não exige iniciar servidor Whisper separado.
+
+Configurações aceitas:
+
+- `STT_ENGINE=browser`
+- `STT_ENGINE=proxy`
+- `STT_ENGINE=embedded`
+- `STT_ENGINE=disabled`
+
+## Banco
+
+O SQLite fica em:
+
+```text
+clinic_inventory.db
 ```
 
-Executar a revisao pela API:
+Endpoints úteis:
+
+- `GET /products`
+- `GET /suppliers`
+- `GET /alerts`
+- `POST /seed/reset`
+- `POST /simulation/run-stock-check`
+- `POST /ops/agent/request`
+- `POST /ops/agent/request/stream`
+- `POST /ops/search`
+
+## Ambiente
+
+Se aparecer `ModuleNotFoundError`, rode:
 
 ```powershell
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/ai/daily-inventory-review `
-  -ContentType "application/json" `
-  -Body '{}'
+.\run_api.bat
 ```
 
-Executar batch para QA:
-
-```powershell
-Invoke-RestMethod -Method Post http://127.0.0.1:8000/ai/daily-inventory-review/batch `
-  -ContentType "application/json" `
-  -Body '{"count":10}'
-```
-
-Executar por script:
-
-```powershell
-python scripts/run_ai_inventory_review.py --list-models
-```
-
-Ou com modelo especifico:
-
-```powershell
-python scripts/run_ai_inventory_review.py --model "nome-do-modelo"
-```
-
-Arquivos gerados:
-
-- Relatorios: `reports/*.json`
-- Logs: `logs/ai_actions.jsonl`
-- Runs de QA: `qa_runs/runs/*.json`
-- Batches de QA: `qa_runs/batches/*.json` e `qa_runs/batches/*.csv`
-
-Observabilidade para QA:
-
-A interface `/ai/dashboard` mostra metricas, timeline da execucao, chamadas de tools, resultados, resposta final, alertas e comparacao entre execucoes. Ela nao exibe raciocinio oculto da IA; mostra apenas mensagens e eventos observaveis retornados pelo modelo e pelo runtime.
-
-Sobre carregamento de modelos:
-
-A selecao de modelo na interface define o identificador enviado para o LM Studio nas chamadas de chat. O OpenAI-compatible endpoint do LM Studio usa `/v1/models` para listar modelos e `/v1/chat/completions` para conversar. Quando disponivel, a interface tambem pode tentar carregar um modelo pelo endpoint nativo `/api/v1/models/load`; se isso falhar, carregue o modelo manualmente no LM Studio e mantenha a selecao como referencia para as proximas chamadas.
-
-Limitacoes desta etapa:
-
-- Sem LangGraph, CrewAI, AutoGen, MCP ou framework agentic.
-- Sem RAG, embeddings ou memoria vetorial.
-- Sem multiplos agentes.
-- Sem compras reais.
-- Sem e-mail real.
-- Sem escrita de estoque pela IA.
+O inicializador valida a `.venv`, recria quando ela está corrompida e instala as dependências de `requirements.txt`.

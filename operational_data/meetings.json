@@ -1,0 +1,139 @@
+[
+  {
+    "id": "meeting-20260614-020224-12c991c5",
+    "created_at": "2026-06-14T02:02:24.859647",
+    "status": "completed",
+    "source_text": "Ricardo: Bom dia, pessoal. Obrigado por estarem aqui. O objetivo da reunião de hoje é alinhar a nova proposta do assistente executivo que estamos desenvolvendo para uso interno da diretoria.\n\nMariana: Bom dia. A ideia principal é validar se o produto continua resolvendo o problema certo: centralizar informações, facilitar decisões rápidas e reduzir o tempo gasto procurando dados em diferentes sistemas.\n\nRicardo: Exato. Eu não quero uma ferramenta que pareça mais um painel genérico. Preciso de algo que funcione como uma central de comando pessoal. Algo direto, elegante e que me ajude a agir.\n\nFelipe: Entendi. No design, estamos abandonando a ideia de dashboard tradicional. A nova proposta organiza a tela em três áreas principais: entrada de demanda, contexto executivo e resposta inteligente.\n\nCarla: Quando você diz “contexto executivo”, está falando de agenda, pendências e indicadores?\n\nFelipe: Sim, mas sem transformar isso em uma tela cheia de gráficos. A ideia é mostrar só o que interfere na decisão atual. Por exemplo: compromissos críticos, solicitações pendentes e alertas importantes.\n\nAndré: Do ponto de vista técnico, conseguimos estruturar isso de forma modular. Mesmo que nesta primeira versão seja só visual, a interface já pode prever espaços para integração com agenda, documentos e histórico de conversas.\n\nRicardo: Uma preocupação: eu não quero ver nomes de modelos de IA, status técnico ou termos como “backend processando”. Isso não faz sentido para o usuário final.\n\nMariana: Concordo. A linguagem precisa ser executiva. Em vez de “processando prompt”, usamos algo como “analisando solicitação” ou simplesmente mostramos a resposta em andamento.\n\nCarla: Também acho importante que o envio de arquivos seja muito claro. Muitos documentos vão ser contratos, apresentações e planilhas. O usuário precisa entender rapidamente onde anexar e o que já foi enviado.\n\nFelipe: Na proposta atual, o envio de arquivo fica na parte superior da área de comando. A prompt fica abaixo, com um campo mais robusto, e o botão de voz fica à direita como uma ação secundária, mas sempre visível.\n\nRicardo: Perfeito. A resposta deve aparecer ao lado direito, certo?\n\nFelipe: Sim. A resposta ocupa uma área própria, com hierarquia de leitura: primeiro o resumo, depois os pontos importantes e, se necessário, as ações recomendadas.\n\nAndré: Podemos também incluir estados visuais diferentes: resposta inicial, resposta com documento analisado, resposta aguardando confirmação e resposta com plano de ação.\n\nMariana: Isso é bom para demonstrar maturidade do produto sem precisar implementar tudo agora.\n\nCarla: E sobre o tom visual? Precisamos evitar algo muito tecnológico demais. O público é executivo, não técnico.\n\nFelipe: A direção visual será mais institucional e operacional. Menos “produto de IA genérico” e mais “ferramenta de comando empresarial”. Sem excesso de cantos arredondados, sem ícones decorativos estranhos e sem elementos que pareçam template de SaaS.\n\nRicardo: Ótimo. Quero que pareça algo feito para uma liderança real usar, não uma vitrine de startup.\n\nMariana: Então os próximos passos são: Felipe finaliza a nova tela principal, André adapta o HTML em arquivo único e Carla valida os principais cenários de uso executivo.\n\nAndré: Consigo preparar uma versão navegável com as telas simuladas: início, análise de documento, resposta, histórico e configurações.\n\nRicardo: Excelente. Quero ver uma versão que já pareça produto final, mesmo que ainda não funcione por trás.\n\nMariana: Combinado. Vamos tratar essa entrega como uma validação visual e de experiência, não como uma implementação funcional.\n\nCarla: Fico responsável por revisar a clareza dos textos e garantir que nenhuma informação técnica apareça para o usuário.\n\nFelipe: Eu reviso a consistência visual e preparo variações de componentes para os principais estados da interface.\n\nRicardo: Perfeito. Obrigado, pessoal. Vamos seguir nessa direção.",
+    "clean_text": "Ricardo: Bom dia, pessoal. Obrigado por estarem aqui. O objetivo da reunião de hoje é alinhar a nova proposta do assistente executivo que estamos desenvolvendo para uso interno da diretoria.\nMariana: Bom dia. A ideia principal é validar se o produto continua resolvendo o problema certo: centralizar informações, facilitar decisões rápidas e reduzir o tempo gasto procurando dados em diferentes sistemas.\nRicardo: Exato. Eu não quero uma ferramenta que pareça mais um painel genérico. Preciso de algo que funcione como uma central de comando pessoal. Algo direto, elegante e que me ajude a agir.\nFelipe: Entendi. No design, estamos abandonando a ideia de dashboard tradicional. A nova proposta organiza a tela em três áreas principais: entrada de demanda, contexto executivo e resposta inteligente.\nCarla: Quando você diz “contexto executivo”, está falando de agenda, pendências e indicadores?\nFelipe: Sim, mas sem transformar isso em uma tela cheia de gráficos. A ideia é mostrar só o que interfere na decisão atual. Por exemplo: compromissos críticos, solicitações pendentes e alertas importantes.\nAndré: Do ponto de vista técnico, conseguimos estruturar isso de forma modular. Mesmo que nesta primeira versão seja só visual, a interface já pode prever espaços para integração com agenda, documentos e histórico de conversas.\nRicardo: Uma preocupação: eu não quero ver nomes de modelos de IA, status técnico ou termos como “backend processando”. Isso não faz sentido para o usuário final.\nMariana: Concordo. A linguagem precisa ser executiva. Em vez de “processando prompt”, usamos algo como “analisando solicitação” ou simplesmente mostramos a resposta em andamento.\nCarla: Também acho importante que o envio de arquivos seja muito claro. Muitos documentos vão ser contratos, apresentações e planilhas. O usuário precisa entender rapidamente onde anexar e o que já foi enviado.\nFelipe: Na proposta atual, o envio de arquivo fica na parte superior da área de comando. A prompt fica abaixo, com um campo mais robusto, e o botão de voz fica à direita como uma ação secundária, mas sempre visível.\nRicardo: Perfeito. A resposta deve aparecer ao lado direito, certo?\nFelipe: Sim. A resposta ocupa uma área própria, com hierarquia de leitura: primeiro o resumo, depois os pontos importantes e, se necessário, as ações recomendadas.\nAndré: Podemos também incluir estados visuais diferentes: resposta inicial, resposta com documento analisado, resposta aguardando confirmação e resposta com plano de ação.\nMariana: Isso é bom para demonstrar maturidade do produto sem precisar implementar tudo agora.\nCarla: E sobre o tom visual? Precisamos evitar algo muito tecnológico demais. O público é executivo, não técnico.\nFelipe: A direção visual será mais institucional e operacional. Menos “produto de IA genérico” e mais “ferramenta de comando empresarial”. Sem excesso de cantos arredondados, sem ícones decorativos estranhos e sem elementos que pareçam template de SaaS.\nRicardo: Ótimo. Quero que pareça algo feito para uma liderança real usar, não uma vitrine de startup.\nMariana: Então os próximos passos são: Felipe finaliza a nova tela principal, André adapta o HTML em arquivo único e Carla valida os principais cenários de uso executivo.\nAndré: Consigo preparar uma versão navegável com as telas simuladas: início, análise de documento, resposta, histórico e configurações.\nRicardo: Excelente. Quero ver uma versão que já pareça produto final, mesmo que ainda não funcione por trás.\nMariana: Combinado. Vamos tratar essa entrega como uma validação visual e de experiência, não como uma implementação funcional.\nCarla: Fico responsável por revisar a clareza dos textos e garantir que nenhuma informação técnica apareça para o usuário.\nFelipe: Eu reviso a consistência visual e preparo variações de componentes para os principais estados da interface.\nRicardo: Perfeito. Obrigado, pessoal. Vamos seguir nessa direção.",
+    "keywords": [
+      "resposta",
+      "felipe",
+      "ricardo",
+      "algo",
+      "carla",
+      "executivo",
+      "mariana",
+      "visual",
+      "andre",
+      "produto",
+      "quero",
+      "comando",
+      "fica",
+      "ideia",
+      "nova",
+      "pareca",
+      "pessoal",
+      "principais",
+      "proposta",
+      "tecnico",
+      "tela",
+      "usuario",
+      "versao",
+      "acao",
+      "agenda",
+      "area",
+      "arquivo",
+      "atual",
+      "certo",
+      "contexto",
+      "diferentes",
+      "direcao",
+      "documento",
+      "documentos",
+      "envio"
+    ],
+    "relevant_context": [],
+    "pipeline_events": [
+      {
+        "event": "raw_text_received",
+        "type": "input",
+        "message": "Texto cru recebido para analise.",
+        "chars": 3938
+      },
+      {
+        "event": "text_prepared",
+        "type": "system",
+        "message": "Texto normalizado para reduzir ruido antes da IA.",
+        "chars": 3914,
+        "keywords": [
+          "resposta",
+          "felipe",
+          "ricardo",
+          "algo",
+          "carla",
+          "executivo",
+          "mariana",
+          "visual",
+          "andre",
+          "produto",
+          "quero",
+          "comando"
+        ]
+      },
+      {
+        "event": "meeting_memory_search",
+        "type": "memory",
+        "message": "0 registro(s) relevante(s) recuperado(s) da memoria local.",
+        "context_ids": []
+      },
+      {
+        "event": "structured_meeting_report",
+        "type": "model",
+        "message": "IA gerou entrega estruturada da reuniao.",
+        "model": "google/gemma-4-e4b"
+      },
+      {
+        "event": "meeting_memory_updated",
+        "type": "memory",
+        "message": "1 anotacao(oes) atualizada(s) na memoria operacional.",
+        "memory_ids": [
+          "mem-20260614-020224-27a38f9c"
+        ]
+      }
+    ],
+    "title": "Alinhamento da Nova Proposta do Assistente Executivo",
+    "summary": "A reunião focou em refinar o design e a experiência de usuário (UX) para o assistente executivo interno da diretoria, abandonando dashboards genéricos em favor de uma 'central de comando pessoal' elegante e funcional. Foi definida a estrutura visual e os próximos passos para criar um protótipo navegável focado na validação de experiência.",
+    "cleaned_meeting": "A nova proposta deve ser uma central de comando pessoal, focada em facilitar decisões rápidas e centralizar informações sem parecer um painel genérico. A interface será dividida em três áreas: entrada de demanda, contexto executivo e resposta inteligente. O design deve ter linguagem executiva (sem termos técnicos como 'backend processando') e visual institucional/operacional, simulando um produto final para uso por liderança.",
+    "relevant_context_used": [],
+    "insights": [
+      "O assistente não pode ser um painel genérico ou uma vitrine de startup; deve parecer uma ferramenta de comando empresarial feita para líderes reais.",
+      "A linguagem e a apresentação devem ser executivas, evitando jargões técnicos (ex: usar 'analisando solicitação' em vez de 'processando prompt').",
+      "O foco da informação no 'contexto executivo' é mostrar apenas o que interfere na decisão atual (compromissos críticos, pendências, alertas), sem sobrecarregar com gráficos.",
+      "A resposta deve ter uma hierarquia clara: resumo > pontos importantes > ações recomendadas."
+    ],
+    "decisions": [
+      "**Estrutura da Interface:** A nova proposta será organizada em três áreas principais: Entrada de Demanda, Contexto Executivo e Resposta Inteligente.",
+      "**Design Visual:** O tom visual deve ser institucional e operacional, evitando excessos tecnológicos (cantos arredondados, ícones decorativos) para parecer uma ferramenta de comando empresarial.",
+      "**Tipo de Entrega Próxima:** A próxima entrega será um protótipo navegável (simulação visual/UX), não uma implementação funcional completa. Deve simular a aparência de produto final.",
+      "**Fluxo de Informação:** O envio de arquivos deve ser claro na parte superior da área de comando, seguido pelo campo robusto para o prompt e o botão de voz à direita."
+    ],
+    "risks": [
+      "**Risco de Complexidade Visual:** Manter a interface elegante e funcional sem sobrecarregar o usuário com dados ou termos técnicos.",
+      "**Risco de Percepção:** O produto não pode ser percebido como um 'produto de IA genérico' ou uma 'vitrine de startup', exigindo atenção constante ao design institucional."
+    ],
+    "next_actions": [
+      "**Felipe:** Finalizar a nova tela principal e revisar a consistência visual, preparando variações de componentes para os principais estados da interface.",
+      "**André:** Adaptar o HTML em arquivo único e preparar uma versão navegável com as telas simuladas (início, análise de documento, resposta, histórico e configurações).",
+      "**Carla:** Validar os principais cenários de uso executivo e revisar a clareza dos textos para garantir que nenhuma informação técnica apareça ao usuário."
+    ],
+    "open_questions": [
+      "Nenhuma questão pendente foi levantada. O foco é na validação visual da experiência (UX) antes da implementação funcional."
+    ],
+    "memory_updates": {
+      "entities": [
+        "Assistente Executivo: Central de comando pessoal para a diretoria, focado em facilitar decisões rápidas e centralizar informações. Deve ter linguagem executiva e design institucional.",
+        "Estrutura da Interface: Dividida em três áreas (Entrada de Demanda, Contexto Executivo, Resposta Inteligente).",
+        "Próxima Entrega: Protótipo navegável/simulação visual para validação de UX."
+      ],
+      "topics": [
+        "UX e Design Institucional",
+        "Estrutura da Central de Comando",
+        "Validação de Prototipagem"
+      ],
+      "commitments": [],
+      "watch_items": []
+    },
+    "markdown_report": "## 📝 Relatório Operacional: Alinhamento do Assistente Executivo\n\n**Objetivo:** Refinar o design e a experiência de usuário (UX) para transformar o assistente em uma 'central de comando pessoal' elegante e funcional para a diretoria.\n\n### ✅ Decisões Chave\n* **Estrutura:** A interface será dividida em três áreas: Entrada de Demanda, Contexto Executivo e Resposta Inteligente.\n* **Tom Visual:** Institucional e operacional. Deve parecer uma ferramenta de liderança real, não um produto genérico de startup ou IA.\n* **Entrega Próxima:** Será um protótipo navegável (simulação visual/UX), focado na validação da experiência, e não em funcionalidade completa.\n\n### ⚠️ Riscos Identificados\n* **Percepção do Usuário:** É crucial evitar jargões técnicos ou termos de desenvolvimento ('backend processando', 'prompt') para manter a linguagem executiva.\n* **Complexidade Visual:** O design deve ser sofisticado o suficiente para parecer uma ferramenta de comando, mas simples o bastante para não sobrecarregar o usuário com informações desnecessárias (ex: evitar dashboards cheios de gráficos).\n\n### 🚀 Próximos Passos e Responsáveis\n| Responsável | Ação | Objetivo |\n| :--- | :--- | :--- |\n| **Felipe** | Finalizar a tela principal e variações visuais. | Garantir consistência visual e componentes para os diferentes estados da interface. |\n| **André** | Adaptar o HTML em arquivo único. | Preparar um protótipo navegável simulando todas as telas (início, análise, resposta, histórico). |\n| **Carla** | Revisão de Conteúdo e Cenários. | Validar os cenários de uso executivo e garantir que a linguagem seja 100% livre de termos técnicos para o usuário final. |\n\n### 💡 Aprendizados/Insights Operacionais\n* O 'Contexto Executivo' deve focar apenas em alertas críticos, pendências ou compromissos que impactam diretamente a decisão atual.\n* A resposta do assistente deve seguir uma hierarquia de leitura: Resumo > Pontos Importantes > Ações Recomendadas.",
+    "mermaid_diagram": "graph TD\n    A[Início da Reunião] --> B{Definição do Escopo}; \n    B --> C[Central de Comando Pessoal]; \n    C --> D1(Estrutura: Entrada | Contexto Executivo | Resposta); \n    D1 --> E1[Design UX: Institucional/Executivo]; \n    E1 --> F1{Revisão de Conteúdo}; \n    F1 --> G1[Ação 1: Felipe - Componentes Visuais]; \n    F1 --> G2[Ação 2: André - Protótipo Navegável HTML]; \n    F1 --> G3[Ação 3: Carla - Validação de Cenários/Textos]; \n    G1 & G2 & G3 --> H[Entrega: Simulação Visual (UX)];\n"
+  }
+]
